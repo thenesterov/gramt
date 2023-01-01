@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "removeComments": true,
+        "outFile": "src/app.js",
+    },
+    "files":[
+        "src/app.ts"
+    ]
+}
