@@ -4,9 +4,22 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
     <title>gramt - constructor of telegram bots</title>
 </head>
 <body>
-    
+    <div class="row">
+        <div class="column left">
+            <span class="center"><b>gramt</b> - constructor of telegram bots</span><br>
+            <button class="port">Export to .gramt</button>
+            <button class="port">Import from .gramt</button>
+            <textarea class="result"></textarea>
+        </div>
+        <div class="column right">
+            <canvas id="canvas" oncontextmenu="return false;"></canvas>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
