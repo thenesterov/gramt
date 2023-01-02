@@ -45,31 +45,30 @@ class Canvas {
 }
 
 class Shape {
-    public posX:   number;
-    public posY:   number;
-    public width:  number;
-    public height: number;
+    public color:           Colors;
 
-    public movable:       boolean;
-    public clickdownable: boolean;
-    public dblclickable:  boolean;
+    public movable:         boolean;
+    public clickdownable:   boolean;
+    public dblclickable:    boolean;
+    public contextmenuable: boolean;
 
-    public path2d: Path2D;
+    public path2d:          Path2D;
 }
 
 class Rect implements Shape {
-    public width:  number = 100;
-    public posY:   number = 100;
-    public posX:   number = 100;
-    public height: number = 100;
+    public posX:          number = 100;
+    public posY:          number = 100;
 
-    public color: Colors = Colors.MAIN;
+    public width:         number = 100;
+    public height:        number = 100;
+
+    public color:         Colors = Colors.MAIN;
 
     public movable:       boolean = true;
     public clickdownable: boolean = true;
     public dblclickable:  boolean = true;
 
-    public path2d: Path2D = new Path2D;
+    public path2d:        Path2D = new Path2D;
 
     constructor(posX: number, posY: number, width: number, height: number, color: Colors) {
         this.posX   = posX;
@@ -95,25 +94,30 @@ canvas.canvas.addEventListener('mousedown', function(ev: MouseEvent) {
             mouseIsDown = true;
             selectedShape = shape;
 
-            diffMouseX = ev.offsetX - shape.posX;
-            diffMouseY = ev.offsetY - shape.posY;
+            if(shape instanceof Rect) {
+                diffMouseX = ev.offsetX - shape.posX;
+                diffMouseY = ev.offsetY - shape.posY;
+            }
         }
     })
 })
 
 canvas.canvas.addEventListener('mousemove', function(ev: MouseEvent) {
     if(mouseIsDown) {
-        allShapes[allShapes.indexOf(selectedShape)].posX = ev.offsetX - diffMouseX;
-        allShapes[allShapes.indexOf(selectedShape)].posY = ev.offsetY - diffMouseY;
-        
-        allShapes[allShapes.indexOf(selectedShape)].path2d = new Path2D();
-        
-        allShapes[allShapes.indexOf(selectedShape)].path2d.rect(
-            allShapes[allShapes.indexOf(selectedShape)].posX,
-            allShapes[allShapes.indexOf(selectedShape)].posY,
-            allShapes[allShapes.indexOf(selectedShape)].width,
-            allShapes[allShapes.indexOf(selectedShape)].height
-        )        
+        let shape = allShapes[allShapes.indexOf(selectedShape)];
+        if(shape instanceof Rect) {
+            shape.posX = ev.offsetX - diffMouseX;
+            shape.posY = ev.offsetY - diffMouseY;
+            
+            shape.path2d = new Path2D();
+            
+            shape.path2d.rect(
+                shape.posX,
+                shape.posY,
+                shape.width,
+                shape.height
+            ) 
+        }     
     }
 })
 
