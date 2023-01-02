@@ -17,6 +17,7 @@ var Colors = (function () {
     function Colors() {
     }
     Colors.MAIN = '#65bbf4';
+    Colors.USER = '#2b5378';
     return Colors;
 }());
 var allShapes = [];
@@ -37,7 +38,13 @@ var Canvas = (function () {
         allShapes.push(shape);
     };
     Canvas.prototype.drawShape = function (shape) {
-        if (shape instanceof Rect) {
+        if (shape instanceof RectPnt) {
+            this.context.fillStyle = String(shape.color);
+            this.context.fillRect(shape.posX, shape.posY, shape.width, shape.height);
+            this.context.fillStyle = String(shape.pntColor);
+            this.context.fillRect(shape.point.posX, shape.point.posY, shape.point.width, shape.point.height);
+        }
+        else if (shape instanceof Point) {
             this.context.fillStyle = String(shape.color);
             this.context.fillRect(shape.posX, shape.posY, shape.width, shape.height);
         }
@@ -51,11 +58,16 @@ var Shape = (function () {
 }());
 var Rect = (function () {
     function Rect(posX, posY, width, height, color) {
+        if (posX === void 0) { posX = 100; }
+        if (posY === void 0) { posY = 100; }
+        if (width === void 0) { width = 100; }
+        if (height === void 0) { height = 100; }
+        if (color === void 0) { color = Colors.USER; }
         this.posX = 100;
         this.posY = 100;
         this.width = 100;
         this.height = 100;
-        this.color = Colors.MAIN;
+        this.color = Colors.USER;
         this.movable = true;
         this.clickdownable = true;
         this.dblclickable = true;
@@ -79,13 +91,38 @@ var Rect = (function () {
 var Point = (function (_super) {
     __extends(Point, _super);
     function Point() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.width = 10;
-        _this.height = 10;
-        _this.dblclickable = false;
-        return _this;
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     return Point;
+}(Rect));
+var RectPnt = (function (_super) {
+    __extends(RectPnt, _super);
+    function RectPnt(posX, posY, width, height, color) {
+        if (posX === void 0) { posX = 100; }
+        if (posY === void 0) { posY = 100; }
+        if (width === void 0) { width = 100; }
+        if (height === void 0) { height = 100; }
+        if (color === void 0) { color = Colors.USER; }
+        var _this = _super.call(this, posX, posY, width, height, color) || this;
+        _this.point = new Point();
+        _this.pntColor = Colors.MAIN;
+        _this.point.width = 10;
+        _this.point.height = 10;
+        _this.point.posX = _this.posX / 2 + _this.width - _this.point.width / 2;
+        _this.point.posY = _this.posY + _this.height;
+        return _this;
+    }
+    RectPnt.prototype.move = function (shape, ev) {
+        shape.posX = ev.offsetX - diffMouseX;
+        shape.posY = ev.offsetY - diffMouseY;
+        shape.path2d = new Path2D();
+        shape.path2d.rect(shape.posX, shape.posY, shape.width, shape.height);
+        this.point.posX = this.posX + this.width / 2 - this.point.width / 2;
+        this.point.posY = this.posY + this.height;
+        this.point.path2d = new Path2D();
+        this.point.path2d.rect(this.point.posX, this.point.posY, this.point.width, this.point.height);
+    };
+    return RectPnt;
 }(Rect));
 var canvas = new Canvas();
 canvas.canvas.addEventListener('mouseup', function (ev) {
@@ -97,7 +134,7 @@ canvas.canvas.addEventListener('mousedown', function (ev) {
         if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.clickdownable) {
             mouseIsDown = true;
             selectedShape = shape;
-            if (shape instanceof Rect) {
+            if (shape instanceof RectPnt || shape instanceof Point) {
                 diffMouseX = ev.offsetX - shape.posX;
                 diffMouseY = ev.offsetY - shape.posY;
             }
@@ -107,8 +144,11 @@ canvas.canvas.addEventListener('mousedown', function (ev) {
 canvas.canvas.addEventListener('mousemove', function (ev) {
     if (mouseIsDown) {
         var shape = allShapes[allShapes.indexOf(selectedShape)];
-        if (shape instanceof Rect) {
+        if (shape instanceof RectPnt || shape instanceof Point) {
             shape.move(shape, ev);
+            if (shape instanceof RectPnt) {
+                shape.point.move(shape, ev);
+            }
         }
     }
 });
