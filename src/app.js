@@ -22,6 +22,8 @@ var Colors = (function () {
 }());
 var allShapes = [];
 var mouseIsDown = false;
+var mouseOnRectPnt = false;
+var lineIsActive = false;
 var diffMouseX = 0;
 var diffMouseY = 0;
 var selectedShape;
@@ -48,6 +50,14 @@ var Canvas = (function () {
             this.context.fillStyle = String(shape.color);
             this.context.fillRect(shape.posX, shape.posY, shape.width, shape.height);
         }
+        else if (shape instanceof Line) {
+            this.context.strokeStyle = String(shape.color);
+            this.context.beginPath();
+            this.context.lineWidth = 3;
+            this.context.moveTo(shape.fromPosX, shape.fromPosY);
+            this.context.lineTo(shape.toPosX, shape.toPosY);
+            this.context.stroke();
+        }
     };
     return Canvas;
 }());
@@ -73,6 +83,10 @@ var Rect = (function () {
         this.dblclickable = true;
         this.contextmenuable = true;
         this.path2d = new Path2D;
+        this.connection_above = [];
+        this.connection_below = [];
+        this.linesFrom = [];
+        this.linesTo = [];
         this.posX = posX;
         this.posY = posY;
         this.width = width;
@@ -81,10 +95,24 @@ var Rect = (function () {
         this.path2d.rect(this.posX, this.posY, this.width, this.height);
     }
     Rect.prototype.move = function (shape, ev) {
+        var _this = this;
         shape.posX = ev.offsetX - diffMouseX;
         shape.posY = ev.offsetY - diffMouseY;
         shape.path2d = new Path2D();
         shape.path2d.rect(shape.posX, shape.posY, shape.width, shape.height);
+        this.linesFrom.forEach(function (line) {
+            if (shape instanceof Point) {
+                line.move(_this.posX + _this.width / 2, _this.posY + _this.height / 2, null, null);
+            }
+            else if (shape instanceof RectPnt) {
+                var newPosX = shape.point.posX + (shape.width / 2);
+                var newPosY = shape.point.posY + (shape.point.height / 2);
+                line.move(newPosX, newPosY, null, null);
+            }
+        });
+        this.linesTo.forEach(function (line) {
+            line.move(null, null, _this.posX + _this.width / 2, _this.posY + _this.height / 2);
+        });
     };
     return Rect;
 }());
@@ -113,6 +141,7 @@ var RectPnt = (function (_super) {
         return _this;
     }
     RectPnt.prototype.move = function (shape, ev) {
+        var _this = this;
         shape.posX = ev.offsetX - diffMouseX;
         shape.posY = ev.offsetY - diffMouseY;
         shape.path2d = new Path2D();
@@ -121,12 +150,93 @@ var RectPnt = (function (_super) {
         this.point.posY = this.posY + this.height;
         this.point.path2d = new Path2D();
         this.point.path2d.rect(this.point.posX, this.point.posY, this.point.width, this.point.height);
+        this.linesFrom.forEach(function (line) {
+            if (shape instanceof Point) {
+                line.move(_this.posX + _this.width / 2, _this.posY + _this.height / 2, null, null);
+            }
+            else if (shape instanceof RectPnt) {
+                var newPosX = _this.point.posX + (_this.point.width / 2);
+                var newPosY = _this.point.posY + (_this.point.height / 2);
+                line.move(newPosX, newPosY, null, null);
+            }
+        });
+        this.linesTo.forEach(function (line) {
+            line.move(null, null, _this.posX + _this.width / 2, _this.posY + _this.height / 2);
+        });
     };
     return RectPnt;
 }(Rect));
+var Line = (function () {
+    function Line(fromPosX, fromPosY, toPosX, toPosY, color) {
+        if (color === void 0) { color = Colors.MAIN; }
+        this.color = Colors.MAIN;
+        this.movable = false;
+        this.clickdownable = false;
+        this.dblclickable = false;
+        this.contextmenuable = true;
+        this.path2d = new Path2D();
+        this.fromPosX = fromPosX;
+        this.fromPosY = fromPosY;
+        this.toPosX = toPosX;
+        this.toPosY = toPosY;
+        this.color = color;
+        this.path2d.moveTo(fromPosX, fromPosY);
+        this.path2d.lineTo(toPosX, toPosY);
+    }
+    Line.prototype.move = function (offsetFromX, offsetFromY, offsetToX, offsetToY, targetRect) {
+        if (offsetFromX === void 0) { offsetFromX = null; }
+        if (offsetFromY === void 0) { offsetFromY = null; }
+        if (offsetToX === void 0) { offsetToX = null; }
+        if (offsetToY === void 0) { offsetToY = null; }
+        if (targetRect === void 0) { targetRect = null; }
+        if (offsetFromX == null && offsetFromY == null) {
+            if (targetRect == null) {
+                this.toPosX = offsetToX;
+                this.toPosY = offsetToY;
+            }
+            else {
+                this.toPosX = targetRect.posX + targetRect.width / 2;
+                this.toPosY = targetRect.posY + targetRect.height / 2;
+            }
+        }
+        else if (offsetToX == null && offsetToY == null) {
+            if (targetRect == null) {
+                this.fromPosX = offsetFromX;
+                this.fromPosY = offsetFromY;
+            }
+        }
+        this.path2d = new Path2D();
+        this.path2d.moveTo(this.fromPosX, this.fromPosY);
+        this.path2d.lineTo(this.toPosX, this.toPosY);
+    };
+    return Line;
+}());
 var canvas = new Canvas();
+canvas.canvas.addEventListener('click', function (ev) {
+    console.log("click ".concat(ev.offsetX, ", ").concat(ev.offsetY));
+});
 canvas.canvas.addEventListener('mouseup', function (ev) {
+    var emptyMouseUp = true;
+    var lastElemInArray = allShapes[allShapes.length - 1];
+    allShapes.forEach(function (shape) {
+        if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)
+            && mouseOnRectPnt
+            && lineIsActive
+            && shape != selectedShape) {
+            if (shape instanceof RectPnt || shape instanceof Point) {
+                if (lastElemInArray instanceof Line) {
+                    lastElemInArray.move(null, null, ev.offsetX, ev.offsetY, shape);
+                    shape.linesTo.push(lastElemInArray);
+                }
+                emptyMouseUp = false;
+            }
+        }
+    });
+    if (emptyMouseUp && lineIsActive && mouseOnRectPnt) {
+        allShapes.pop();
+    }
     mouseIsDown = false;
+    mouseOnRectPnt = false;
     selectedShape = null;
 });
 canvas.canvas.addEventListener('mousedown', function (ev) {
@@ -139,15 +249,34 @@ canvas.canvas.addEventListener('mousedown', function (ev) {
                 diffMouseY = ev.offsetY - shape.posY;
             }
         }
+        else if (shape instanceof RectPnt) {
+            if (canvas.context.isPointInPath(shape.point.path2d, ev.offsetX, ev.offsetY) && shape.clickdownable) {
+                mouseOnRectPnt = true;
+                selectedShape = shape;
+                allShapes.push(new Line(shape.point.posX + shape.point.width / 2, shape.point.posY + shape.point.height / 2, ev.offsetX, ev.offsetY));
+                var lastElemInArray = allShapes[allShapes.length - 1];
+                if (lastElemInArray instanceof Line) {
+                    shape.linesFrom.push(lastElemInArray);
+                }
+                lineIsActive = true;
+            }
+        }
     });
 });
 canvas.canvas.addEventListener('mousemove', function (ev) {
+    if (mouseOnRectPnt) {
+        var lastElemInArray = allShapes[allShapes.length - 1];
+        if (lastElemInArray instanceof Line) {
+            lastElemInArray.toPosX = ev.offsetX;
+            lastElemInArray.toPosY = ev.offsetY;
+            lastElemInArray.move(null, null, ev.offsetX, ev.offsetY);
+        }
+    }
     if (mouseIsDown) {
-        var shape = allShapes[allShapes.indexOf(selectedShape)];
-        if (shape instanceof RectPnt || shape instanceof Point) {
-            shape.move(shape, ev);
-            if (shape instanceof RectPnt) {
-                shape.point.move(shape, ev);
+        if (selectedShape instanceof RectPnt || selectedShape instanceof Point) {
+            selectedShape.move(selectedShape, ev);
+            if (selectedShape instanceof RectPnt) {
+                selectedShape.point.move(selectedShape, ev);
             }
         }
     }
@@ -155,7 +284,14 @@ canvas.canvas.addEventListener('mousemove', function (ev) {
 function renderCanvas() {
     canvas.context.clearRect(0, 0, canvas.canvas.width, canvas.canvas.height);
     allShapes.forEach(function (shape) {
-        canvas.drawShape(shape);
+        if (shape instanceof Line) {
+            canvas.drawShape(shape);
+        }
+    });
+    allShapes.forEach(function (shape) {
+        if (shape instanceof Rect) {
+            canvas.drawShape(shape);
+        }
     });
     window.requestAnimationFrame(renderCanvas);
 }
