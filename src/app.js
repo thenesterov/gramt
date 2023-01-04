@@ -218,6 +218,15 @@ canvas.canvas.addEventListener('click', function (ev) {
 canvas.canvas.addEventListener('mouseup', function (ev) {
     var emptyMouseUp = true;
     var lastElemInArray = allShapes[allShapes.length - 1];
+    function include(array, element) {
+        var result = false;
+        array.forEach(function (elem) {
+            if (elem == element) {
+                result = true;
+            }
+        });
+        return result;
+    }
     allShapes.forEach(function (shape) {
         if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)
             && mouseOnRectPnt
@@ -226,14 +235,17 @@ canvas.canvas.addEventListener('mouseup', function (ev) {
             if (shape instanceof RectPnt || shape instanceof Point) {
                 if (lastElemInArray instanceof Line) {
                     lastElemInArray.move(null, null, ev.offsetX, ev.offsetY, shape);
-                    shape.linesTo.push(lastElemInArray);
+                    if (selectedShape instanceof Rect) {
+                        shape.linesTo.push(lastElemInArray);
+                        selectedShape.linesFrom.push(lastElemInArray);
+                    }
                 }
                 emptyMouseUp = false;
             }
         }
     });
     if (emptyMouseUp && lineIsActive && mouseOnRectPnt) {
-        allShapes.pop();
+        var deletedLine = allShapes.pop();
     }
     mouseIsDown = false;
     mouseOnRectPnt = false;
@@ -254,10 +266,6 @@ canvas.canvas.addEventListener('mousedown', function (ev) {
                 mouseOnRectPnt = true;
                 selectedShape = shape;
                 allShapes.push(new Line(shape.point.posX + shape.point.width / 2, shape.point.posY + shape.point.height / 2, ev.offsetX, ev.offsetY));
-                var lastElemInArray = allShapes[allShapes.length - 1];
-                if (lastElemInArray instanceof Line) {
-                    shape.linesFrom.push(lastElemInArray);
-                }
                 lineIsActive = true;
             }
         }
@@ -281,8 +289,81 @@ canvas.canvas.addEventListener('mousemove', function (ev) {
         }
     }
 });
+canvas.canvas.addEventListener('contextmenu', function (ev) {
+    var rectWasDeleted = false;
+    var slf = [];
+    var slt = [];
+    allShapes.forEach(function (shape) {
+        if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.contextmenuable) {
+            rectWasDeleted = true;
+            if (shape instanceof Rect) {
+                slf = shape.linesFrom;
+                slt = shape.linesTo;
+                allShapes.splice(allShapes.indexOf(shape), 1);
+                shape.linesFrom.forEach(function (line) {
+                    allShapes.splice(allShapes.indexOf(line), 1);
+                });
+                shape.linesTo.forEach(function (line) {
+                    allShapes.splice(allShapes.indexOf(line), 1);
+                });
+            }
+        }
+        if (shape instanceof Line && !rectWasDeleted) {
+            var entry_left = (ev.offsetX - shape.fromPosX) / (shape.toPosX - shape.fromPosX);
+            var entry_right = (ev.offsetY - shape.fromPosY) / (shape.toPosY - shape.fromPosY);
+            if (Math.abs(entry_left - entry_right) <= 0.05) {
+                allShapes.splice(allShapes.indexOf(shape), 1);
+                allShapes.forEach(function (jshape) {
+                    if (jshape instanceof Rect) {
+                        jshape.linesFrom.forEach(function (jline) {
+                            if (jline == shape) {
+                                jshape.linesFrom.splice(jshape.linesFrom.indexOf(jline), 1);
+                            }
+                        });
+                    }
+                });
+                allShapes.forEach(function (jshape) {
+                    if (jshape instanceof Rect) {
+                        jshape.linesTo.forEach(function (jline) {
+                            if (jline == shape) {
+                                jshape.linesTo.splice(jshape.linesTo.indexOf(jline), 1);
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    });
+    slf.forEach(function (line) {
+        allShapes.forEach(function (shape) {
+            if (shape instanceof Rect) {
+                shape.linesTo.forEach(function (lf) {
+                    if (lf == line) {
+                        shape.linesTo.splice(shape.linesTo.indexOf(lf), 1);
+                    }
+                });
+            }
+        });
+    });
+    slt.forEach(function (line) {
+        allShapes.forEach(function (shape) {
+            if (shape instanceof Rect) {
+                shape.linesFrom.forEach(function (lt) {
+                    if (lt == line) {
+                        shape.linesFrom.splice(shape.linesFrom.indexOf(lt), 1);
+                    }
+                });
+            }
+        });
+    });
+});
+var countAllShapes = 0;
 function renderCanvas() {
     canvas.context.clearRect(0, 0, canvas.canvas.width, canvas.canvas.height);
+    if (countAllShapes != allShapes.length) {
+        console.log('cb');
+    }
+    countAllShapes = allShapes.length;
     allShapes.forEach(function (shape) {
         if (shape instanceof Line) {
             canvas.drawShape(shape);
