@@ -13,6 +13,7 @@ let allShapes: Shape[] = [];
 
 let mouseIsDown: boolean = false;
 let mouseOnRectPnt: boolean = false;
+let mouseOnPoint: boolean = false;
 let lineIsActive: boolean = false;
 
 let diffMouseX: number = 0;
@@ -280,34 +281,55 @@ canvas.canvas.addEventListener('mouseup', function(ev: MouseEvent) {
     }
 
     allShapes.forEach(shape => {
-        if(canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)
-            && mouseOnRectPnt
-            && lineIsActive
-            && shape != selectedShape) {
-            if(shape instanceof RectPnt || shape instanceof Point) {
-                if(lastElemInArray instanceof Line) {
-                    lastElemInArray.move(null, null, ev.offsetX, ev.offsetY, shape);                
+        if(!(shape instanceof Line)) {
+            if(canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)
+                && (mouseOnRectPnt || mouseOnPoint)
+                && lineIsActive
+                && shape != selectedShape) {
+                    console.log(888005553535);
+                if(shape instanceof RectPnt || shape instanceof Point) {
+                    if(lastElemInArray instanceof Line) {
+                        lastElemInArray.move(null, null, ev.offsetX, ev.offsetY, shape);                
 
-                    if(selectedShape instanceof Rect) {
-                        shape.linesTo.push(lastElemInArray);
-                        selectedShape.linesFrom.push(lastElemInArray);
+                        if(selectedShape instanceof Rect) {
+                            shape.linesTo.push(lastElemInArray);
+                            selectedShape.linesFrom.push(lastElemInArray);
+                        }
                     }
+                    emptyMouseUp = false;
                 }
-                emptyMouseUp = false;
+            } else if(canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)
+                && (mouseOnRectPnt || mouseOnPoint)
+                && lineIsActive && shape instanceof Point) {
+                if(shape instanceof RectPnt || shape instanceof Point) {
+                    if(lastElemInArray instanceof Line) {
+                        lastElemInArray.move(null, null, ev.offsetX, ev.offsetY, shape);                
+
+                        if(selectedShape instanceof Rect) {
+                            shape.linesTo.push(lastElemInArray);
+                            selectedShape.linesFrom.push(lastElemInArray);
+                            console.log(shape);
+                            console.log(selectedShape);
+                        }
+                    }
+                    emptyMouseUp = false;
+                }
             }
         }
     })
 
     if(emptyMouseUp && lineIsActive && mouseOnRectPnt) {
-        let deletedLine = allShapes.pop();
+        allShapes.pop();
     }
 
     mouseIsDown = false;
     mouseOnRectPnt = false;
+    mouseOnPoint = false;
     selectedShape = null;
 })
 
 canvas.canvas.addEventListener('mousedown', function(ev: MouseEvent) {
+    console.log(232323);
     allShapes.forEach(shape => {
         if(canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.clickdownable) {
             mouseIsDown = true;
@@ -344,7 +366,15 @@ canvas.canvas.addEventListener('mousemove', function(ev: MouseEvent) {
             lastElemInArray.move(null, null, ev.offsetX, ev.offsetY);
         }
     }
-    if(mouseIsDown) {
+    if(mouseIsDown && mouseOnPoint) {
+        let lastElemInArray = allShapes[allShapes.length - 1];
+        if(lastElemInArray instanceof Line) {
+            lastElemInArray.toPosX = ev.offsetX;
+            lastElemInArray.toPosY = ev.offsetY;
+            lastElemInArray.move(null, null, ev.offsetX, ev.offsetY);
+        }
+    }
+    if(mouseIsDown && !mouseOnPoint) {
         if(selectedShape instanceof RectPnt || selectedShape instanceof Point) {
             selectedShape.move(selectedShape, ev);
             if(selectedShape instanceof RectPnt) { 
@@ -428,6 +458,28 @@ canvas.canvas.addEventListener('contextmenu', function(ev: MouseEvent) {
                 })
             }
         })
+    })
+})
+
+canvas.canvas.addEventListener('dblclick', function(ev: MouseEvent) {
+    allShapes.forEach(shape => {
+        if(shape instanceof Point) {
+            if(canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.dblclickable) {
+                if(shape instanceof Point) {
+                    mouseIsDown = true;
+                    mouseOnPoint = true;
+                    selectedShape = shape;
+    
+                    allShapes.push(new Line(
+                        shape.posX + shape.width / 2,
+                        shape.posY + shape.height / 2,
+                        ev.offsetX,
+                        ev.offsetY))
+    
+                    lineIsActive = true;
+                }
+            }
+        }
     })
 })
 

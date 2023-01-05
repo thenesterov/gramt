@@ -23,6 +23,7 @@ var Colors = (function () {
 var allShapes = [];
 var mouseIsDown = false;
 var mouseOnRectPnt = false;
+var mouseOnPoint = false;
 var lineIsActive = false;
 var diffMouseX = 0;
 var diffMouseY = 0;
@@ -228,30 +229,51 @@ canvas.canvas.addEventListener('mouseup', function (ev) {
         return result;
     }
     allShapes.forEach(function (shape) {
-        if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)
-            && mouseOnRectPnt
-            && lineIsActive
-            && shape != selectedShape) {
-            if (shape instanceof RectPnt || shape instanceof Point) {
-                if (lastElemInArray instanceof Line) {
-                    lastElemInArray.move(null, null, ev.offsetX, ev.offsetY, shape);
-                    if (selectedShape instanceof Rect) {
-                        shape.linesTo.push(lastElemInArray);
-                        selectedShape.linesFrom.push(lastElemInArray);
+        if (!(shape instanceof Line)) {
+            if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)
+                && (mouseOnRectPnt || mouseOnPoint)
+                && lineIsActive
+                && shape != selectedShape) {
+                console.log(888005553535);
+                if (shape instanceof RectPnt || shape instanceof Point) {
+                    if (lastElemInArray instanceof Line) {
+                        lastElemInArray.move(null, null, ev.offsetX, ev.offsetY, shape);
+                        if (selectedShape instanceof Rect) {
+                            shape.linesTo.push(lastElemInArray);
+                            selectedShape.linesFrom.push(lastElemInArray);
+                        }
                     }
+                    emptyMouseUp = false;
                 }
-                emptyMouseUp = false;
+            }
+            else if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)
+                && (mouseOnRectPnt || mouseOnPoint)
+                && lineIsActive && shape instanceof Point) {
+                if (shape instanceof RectPnt || shape instanceof Point) {
+                    if (lastElemInArray instanceof Line) {
+                        lastElemInArray.move(null, null, ev.offsetX, ev.offsetY, shape);
+                        if (selectedShape instanceof Rect) {
+                            shape.linesTo.push(lastElemInArray);
+                            selectedShape.linesFrom.push(lastElemInArray);
+                            console.log(shape);
+                            console.log(selectedShape);
+                        }
+                    }
+                    emptyMouseUp = false;
+                }
             }
         }
     });
     if (emptyMouseUp && lineIsActive && mouseOnRectPnt) {
-        var deletedLine = allShapes.pop();
+        allShapes.pop();
     }
     mouseIsDown = false;
     mouseOnRectPnt = false;
+    mouseOnPoint = false;
     selectedShape = null;
 });
 canvas.canvas.addEventListener('mousedown', function (ev) {
+    console.log(232323);
     allShapes.forEach(function (shape) {
         if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.clickdownable) {
             mouseIsDown = true;
@@ -280,7 +302,15 @@ canvas.canvas.addEventListener('mousemove', function (ev) {
             lastElemInArray.move(null, null, ev.offsetX, ev.offsetY);
         }
     }
-    if (mouseIsDown) {
+    if (mouseIsDown && mouseOnPoint) {
+        var lastElemInArray = allShapes[allShapes.length - 1];
+        if (lastElemInArray instanceof Line) {
+            lastElemInArray.toPosX = ev.offsetX;
+            lastElemInArray.toPosY = ev.offsetY;
+            lastElemInArray.move(null, null, ev.offsetX, ev.offsetY);
+        }
+    }
+    if (mouseIsDown && !mouseOnPoint) {
         if (selectedShape instanceof RectPnt || selectedShape instanceof Point) {
             selectedShape.move(selectedShape, ev);
             if (selectedShape instanceof RectPnt) {
@@ -355,6 +385,21 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
                 });
             }
         });
+    });
+});
+canvas.canvas.addEventListener('dblclick', function (ev) {
+    allShapes.forEach(function (shape) {
+        if (shape instanceof Point) {
+            if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.dblclickable) {
+                if (shape instanceof Point) {
+                    mouseIsDown = true;
+                    mouseOnPoint = true;
+                    selectedShape = shape;
+                    allShapes.push(new Line(shape.posX + shape.width / 2, shape.posY + shape.height / 2, ev.offsetX, ev.offsetY));
+                    lineIsActive = true;
+                }
+            }
+        }
     });
 });
 var countAllShapes = 0;
