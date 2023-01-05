@@ -25,6 +25,7 @@ var mouseIsDown = false;
 var mouseOnRectPnt = false;
 var mouseOnPoint = false;
 var lineIsActive = false;
+var mouseIsDbl = false;
 var diffMouseX = 0;
 var diffMouseY = 0;
 var selectedShape;
@@ -234,7 +235,6 @@ canvas.canvas.addEventListener('mouseup', function (ev) {
                 && (mouseOnRectPnt || mouseOnPoint)
                 && lineIsActive
                 && shape != selectedShape) {
-                console.log(888005553535);
                 if (shape instanceof RectPnt || shape instanceof Point) {
                     if (lastElemInArray instanceof Line) {
                         lastElemInArray.move(null, null, ev.offsetX, ev.offsetY, shape);
@@ -248,15 +248,13 @@ canvas.canvas.addEventListener('mouseup', function (ev) {
             }
             else if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)
                 && (mouseOnRectPnt || mouseOnPoint)
-                && lineIsActive && shape instanceof Point) {
-                if (shape instanceof RectPnt || shape instanceof Point) {
+                && lineIsActive) {
+                if (shape instanceof Point) {
                     if (lastElemInArray instanceof Line) {
                         lastElemInArray.move(null, null, ev.offsetX, ev.offsetY, shape);
                         if (selectedShape instanceof Rect) {
                             shape.linesTo.push(lastElemInArray);
                             selectedShape.linesFrom.push(lastElemInArray);
-                            console.log(shape);
-                            console.log(selectedShape);
                         }
                     }
                     emptyMouseUp = false;
@@ -270,14 +268,16 @@ canvas.canvas.addEventListener('mouseup', function (ev) {
     mouseIsDown = false;
     mouseOnRectPnt = false;
     mouseOnPoint = false;
+    mouseIsDbl = false;
     selectedShape = null;
 });
 canvas.canvas.addEventListener('mousedown', function (ev) {
-    console.log(232323);
     allShapes.forEach(function (shape) {
         if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.clickdownable) {
             mouseIsDown = true;
-            selectedShape = shape;
+            if (!mouseIsDbl) {
+                selectedShape = shape;
+            }
             if (shape instanceof RectPnt || shape instanceof Point) {
                 diffMouseX = ev.offsetX - shape.posX;
                 diffMouseY = ev.offsetY - shape.posY;
@@ -394,6 +394,7 @@ canvas.canvas.addEventListener('dblclick', function (ev) {
                 if (shape instanceof Point) {
                     mouseIsDown = true;
                     mouseOnPoint = true;
+                    mouseIsDbl = true;
                     selectedShape = shape;
                     allShapes.push(new Line(shape.posX + shape.width / 2, shape.posY + shape.height / 2, ev.offsetX, ev.offsetY));
                     lineIsActive = true;
