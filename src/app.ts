@@ -358,10 +358,6 @@ canvas.canvas.addEventListener('mousedown', function(ev: MouseEvent) {
                 mouseOnRectPnt = true;
                 selectedShape = shape;
 
-                console.log(`xx ${ev.offsetX}`);
-                console.log(`yy ${ev.offsetY}`);
-                console.log(`dx ${mouseXMove}`)
-
                 allShapes.push(new Line(
                     shape.point.posX + shape.point.width / 2,
                     shape.point.posY + shape.point.height / 2,
@@ -395,9 +391,7 @@ canvas.canvas.addEventListener('mousemove', function(ev: MouseEvent) {
             }
         }
     }
-    if(mouseIsDown && !ctxmenuOnShape && mouseIsCtxmenu) {
-        console.log(34);
-        
+    if(mouseIsDown && !ctxmenuOnShape && mouseIsCtxmenu) {      
         let diffMouseXMove = (mouseXMove - ev.offsetX) * (-1);
         let diffMouseYMove = (mouseYMove - ev.offsetY) * (-1);
 
@@ -513,8 +507,8 @@ canvas.canvas.addEventListener('dblclick', function(ev: MouseEvent) {
                     allShapes.push(new Line(
                         shape.posX + shape.width / 2,
                         shape.posY + shape.height / 2,
-                        ev.offsetX,
-                        ev.offsetY))
+                        ev.offsetX - generalDiffMouseX,
+                        ev.offsetY - generalDiffMouseY))
     
                     lineIsActive = true;
                 }

@@ -297,9 +297,6 @@ canvas.canvas.addEventListener('mousedown', function (ev) {
             if (canvas.context.isPointInPath(shape.point.path2d, ev.offsetX, ev.offsetY) && shape.clickdownable) {
                 mouseOnRectPnt = true;
                 selectedShape = shape;
-                console.log("xx ".concat(ev.offsetX));
-                console.log("yy ".concat(ev.offsetY));
-                console.log("dx ".concat(mouseXMove));
                 allShapes.push(new Line(shape.point.posX + shape.point.width / 2, shape.point.posY + shape.point.height / 2, ev.offsetX - generalDiffMouseX, ev.offsetY - generalDiffMouseY));
                 lineIsActive = true;
             }
@@ -328,7 +325,6 @@ canvas.canvas.addEventListener('mousemove', function (ev) {
         }
     }
     if (mouseIsDown && !ctxmenuOnShape && mouseIsCtxmenu) {
-        console.log(34);
         var diffMouseXMove = (mouseXMove - ev.offsetX) * (-1);
         var diffMouseYMove = (mouseYMove - ev.offsetY) * (-1);
         generalDiffMouseX += diffMouseXMove;
@@ -424,7 +420,7 @@ canvas.canvas.addEventListener('dblclick', function (ev) {
                     mouseOnPoint = true;
                     mouseIsDbl = true;
                     selectedShape = shape;
-                    allShapes.push(new Line(shape.posX + shape.width / 2, shape.posY + shape.height / 2, ev.offsetX, ev.offsetY));
+                    allShapes.push(new Line(shape.posX + shape.width / 2, shape.posY + shape.height / 2, ev.offsetX - generalDiffMouseX, ev.offsetY - generalDiffMouseY));
                     lineIsActive = true;
                 }
             }
