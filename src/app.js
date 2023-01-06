@@ -22,12 +22,20 @@ var Colors = (function () {
 }());
 var allShapes = [];
 var mouseIsDown = false;
+var mouseIsCtxmenu = false;
 var mouseOnRectPnt = false;
 var mouseOnPoint = false;
+var ctxmenuOnShape = false;
 var lineIsActive = false;
 var mouseIsDbl = false;
 var diffMouseX = 0;
 var diffMouseY = 0;
+var mouseXMove = 0;
+var mouseYMove = 0;
+var generalDiffMouseX = 0;
+var generalDiffMouseY = 0;
+var clearRectX = 0;
+var clearRectY = 0;
 var selectedShape;
 var Canvas = (function () {
     function Canvas() {
@@ -138,7 +146,7 @@ var RectPnt = (function (_super) {
         _this.pntColor = Colors.MAIN;
         _this.point.width = 10;
         _this.point.height = 10;
-        _this.point.posX = _this.posX / 2 + _this.width - _this.point.width / 2;
+        _this.point.posX = _this.posX / 2 + _this.width - _this.point.width / 2 - generalDiffMouseX / 2;
         _this.point.posY = _this.posY + _this.height;
         return _this;
     }
@@ -269,6 +277,8 @@ canvas.canvas.addEventListener('mouseup', function (ev) {
     mouseOnRectPnt = false;
     mouseOnPoint = false;
     mouseIsDbl = false;
+    mouseIsCtxmenu = false;
+    ctxmenuOnShape = false;
     selectedShape = null;
 });
 canvas.canvas.addEventListener('mousedown', function (ev) {
@@ -287,7 +297,10 @@ canvas.canvas.addEventListener('mousedown', function (ev) {
             if (canvas.context.isPointInPath(shape.point.path2d, ev.offsetX, ev.offsetY) && shape.clickdownable) {
                 mouseOnRectPnt = true;
                 selectedShape = shape;
-                allShapes.push(new Line(shape.point.posX + shape.point.width / 2, shape.point.posY + shape.point.height / 2, ev.offsetX, ev.offsetY));
+                console.log("xx ".concat(ev.offsetX));
+                console.log("yy ".concat(ev.offsetY));
+                console.log("dx ".concat(mouseXMove));
+                allShapes.push(new Line(shape.point.posX + shape.point.width / 2, shape.point.posY + shape.point.height / 2, ev.offsetX - generalDiffMouseX, ev.offsetY - generalDiffMouseY));
                 lineIsActive = true;
             }
         }
@@ -297,17 +310,13 @@ canvas.canvas.addEventListener('mousemove', function (ev) {
     if (mouseOnRectPnt) {
         var lastElemInArray = allShapes[allShapes.length - 1];
         if (lastElemInArray instanceof Line) {
-            lastElemInArray.toPosX = ev.offsetX;
-            lastElemInArray.toPosY = ev.offsetY;
-            lastElemInArray.move(null, null, ev.offsetX, ev.offsetY);
+            lastElemInArray.move(null, null, ev.offsetX - generalDiffMouseX, ev.offsetY - generalDiffMouseY);
         }
     }
     if (mouseIsDown && mouseOnPoint) {
         var lastElemInArray = allShapes[allShapes.length - 1];
         if (lastElemInArray instanceof Line) {
-            lastElemInArray.toPosX = ev.offsetX;
-            lastElemInArray.toPosY = ev.offsetY;
-            lastElemInArray.move(null, null, ev.offsetX, ev.offsetY);
+            lastElemInArray.move(null, null, ev.offsetX - generalDiffMouseX, ev.offsetY - generalDiffMouseY);
         }
     }
     if (mouseIsDown && !mouseOnPoint) {
@@ -318,6 +327,18 @@ canvas.canvas.addEventListener('mousemove', function (ev) {
             }
         }
     }
+    if (mouseIsDown && !ctxmenuOnShape && mouseIsCtxmenu) {
+        console.log(34);
+        var diffMouseXMove = (mouseXMove - ev.offsetX) * (-1);
+        var diffMouseYMove = (mouseYMove - ev.offsetY) * (-1);
+        generalDiffMouseX += diffMouseXMove;
+        generalDiffMouseY += diffMouseYMove;
+        canvas.context.translate(diffMouseXMove, diffMouseYMove);
+        mouseXMove = ev.offsetX;
+        mouseYMove = ev.offsetY;
+        clearRectX -= diffMouseXMove;
+        clearRectY -= diffMouseYMove;
+    }
 });
 canvas.canvas.addEventListener('contextmenu', function (ev) {
     var rectWasDeleted = false;
@@ -325,6 +346,7 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
     var slt = [];
     allShapes.forEach(function (shape) {
         if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.contextmenuable) {
+            ctxmenuOnShape = true;
             rectWasDeleted = true;
             if (shape instanceof Rect) {
                 slf = shape.linesFrom;
@@ -339,8 +361,8 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
             }
         }
         if (shape instanceof Line && !rectWasDeleted) {
-            var entry_left = (ev.offsetX - shape.fromPosX) / (shape.toPosX - shape.fromPosX);
-            var entry_right = (ev.offsetY - shape.fromPosY) / (shape.toPosY - shape.fromPosY);
+            var entry_left = (ev.offsetX - generalDiffMouseX - shape.fromPosX) / (shape.toPosX - shape.fromPosX);
+            var entry_right = (ev.offsetY - generalDiffMouseY - shape.fromPosY) / (shape.toPosY - shape.fromPosY);
             if (Math.abs(entry_left - entry_right) <= 0.05) {
                 allShapes.splice(allShapes.indexOf(shape), 1);
                 allShapes.forEach(function (jshape) {
@@ -386,6 +408,12 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
             }
         });
     });
+    if (!ctxmenuOnShape) {
+        mouseIsDown = true;
+        mouseIsCtxmenu = true;
+        mouseXMove = ev.offsetX;
+        mouseYMove = ev.offsetY;
+    }
 });
 canvas.canvas.addEventListener('dblclick', function (ev) {
     allShapes.forEach(function (shape) {
@@ -405,7 +433,7 @@ canvas.canvas.addEventListener('dblclick', function (ev) {
 });
 var countAllShapes = 0;
 function renderCanvas() {
-    canvas.context.clearRect(0, 0, canvas.canvas.width, canvas.canvas.height);
+    canvas.context.clearRect(clearRectX, clearRectY, canvas.canvas.width, canvas.canvas.height);
     if (countAllShapes != allShapes.length) {
         console.log('cb');
     }
@@ -423,3 +451,9 @@ function renderCanvas() {
     window.requestAnimationFrame(renderCanvas);
 }
 window.requestAnimationFrame(renderCanvas);
+function addState() {
+    canvas.addShape(new RectPnt(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100, Colors.USER));
+}
+function addPoint() {
+    canvas.addShape(new Point(100 - generalDiffMouseX, 100 - generalDiffMouseY, 10, 10, Colors.MAIN));
+}
