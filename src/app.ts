@@ -327,7 +327,7 @@ canvas.canvas.addEventListener('mouseup', function(ev: MouseEvent) {
         }
     })
 
-    if(emptyMouseUp && lineIsActive && mouseOnRectPnt) {
+    if(emptyMouseUp && lineIsActive && (mouseOnRectPnt || mouseOnPoint)) {
         allShapes.pop();
     }
 

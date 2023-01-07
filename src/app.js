@@ -270,7 +270,7 @@ canvas.canvas.addEventListener('mouseup', function (ev) {
             }
         }
     });
-    if (emptyMouseUp && lineIsActive && mouseOnRectPnt) {
+    if (emptyMouseUp && lineIsActive && (mouseOnRectPnt || mouseOnPoint)) {
         allShapes.pop();
     }
     mouseIsDown = false;
