@@ -55,6 +55,21 @@ var Canvas = (function () {
             this.context.fillRect(shape.posX, shape.posY, shape.width, shape.height);
             this.context.fillStyle = String(shape.pntColor);
             this.context.fillRect(shape.point.posX, shape.point.posY, shape.point.width, shape.point.height);
+            if (shape instanceof Rect) {
+                this.context.font = "12px Arial";
+                this.context.fillStyle = "#ffffff";
+                var text = [];
+                for (var i = 0; i < shape.text.length; i++) {
+                    text.push(shape.text[i]);
+                    if (this.context.measureText(text.join('').split('\n')[text.join('').split('\n').length - 1]).width > shape.width - 10) {
+                        text.push('\n');
+                    }
+                }
+                text = text.join('').split('\n');
+                for (var i = 0; i < text.length; i++) {
+                    this.context.fillText(text[i], shape.posX + 5, shape.posY + (i * 10) + 15);
+                }
+            }
         }
         else if (shape instanceof Point) {
             this.context.fillStyle = String(shape.color);
@@ -144,6 +159,7 @@ var RectPnt = (function (_super) {
         var _this = _super.call(this, posX, posY, width, height, color) || this;
         _this.point = new Point();
         _this.pntColor = Colors.MAIN;
+        _this.text = "";
         _this.point.width = 10;
         _this.point.height = 10;
         _this.point.posX = _this.posX / 2 + _this.width - _this.point.width / 2 - generalDiffMouseX / 2;

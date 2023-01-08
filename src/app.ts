@@ -60,6 +60,25 @@ class Canvas {
 
             this.context.fillStyle = String(shape.pntColor);
             this.context.fillRect(shape.point.posX, shape.point.posY, shape.point.width, shape.point.height);
+
+            if(shape instanceof Rect) { // to replace
+                this.context.font = "12px Arial";
+                this.context.fillStyle = "#ffffff";
+                
+                let text: string[] = [];
+
+                for(let i = 0; i < shape.text.length; i++) {
+                    text.push(shape.text[i]);
+                    if(this.context.measureText(text.join('').split('\n')[text.join('').split('\n').length - 1]).width > shape.width - 10) {
+                        text.push('\n');
+                    }
+                }
+
+                text = text.join('').split('\n');
+                for(let i = 0; i < text.length; i++) {
+                    this.context.fillText(text[i], shape.posX + 5, shape.posY + (i * 10) + 15);
+                }
+            }
         }
         else if(shape instanceof Point) {
             this.context.fillStyle = String(shape.color);
@@ -167,6 +186,8 @@ class RectPnt extends Rect {
         this.point.posX = this.posX / 2 + this.width - this.point.width / 2 - generalDiffMouseX / 2;
         this.point.posY = this.posY + this.height;
     }
+
+    public text: string = "";
 
     public move(shape: RectPnt | Point, ev: MouseEvent) {
         shape.posX = ev.offsetX - diffMouseX;
