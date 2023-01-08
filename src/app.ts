@@ -53,6 +53,18 @@ class Canvas {
         allShapes.push(shape);
     }
 
+    public include(array, element) {
+        let result = false;
+
+        array.forEach(elem => {
+            if(elem == element) {
+                result = true;
+            }
+        })
+        
+        return result;
+    }
+
     public drawShape(shape: Shape) {
         if(shape instanceof RectPnt) {
             this.context.fillStyle = String(shape.color);
@@ -69,14 +81,30 @@ class Canvas {
 
                 for(let i = 0; i < shape.text.length; i++) {
                     text.push(shape.text[i]);
-                    if(this.context.measureText(text.join('').split('\n')[text.join('').split('\n').length - 1]).width > shape.width - 10) {
-                        text.push('\n');
+
+                    let lastLine = text.join('').split('\n')[text.join('').split('\n').length - 1];
+
+                    if(this.context.measureText(lastLine).width > shape.width - 10) {
+                        let words = text.join('').split(' ');
+                        let new_text = [];
+
+                        for(let j = 0; j < words.length; j++) {
+                            if(j != words.length - 1) {
+                                new_text.push(words[j] + " ");
+                            } else {
+                                new_text.push('\n');
+                                new_text.push(words[j]);
+                            }
+                        }
+
+                        text = new_text;
                     }
-                }
+                }         
 
                 text = text.join('').split('\n');
+
                 for(let i = 0; i < text.length; i++) {
-                    this.context.fillText(text[i], shape.posX + 5, shape.posY + (i * 10) + 15);
+                    this.context.fillText(text[i], shape.posX + 5, shape.posY + (i * 12) + 15);
                 }
             }
         }
@@ -300,18 +328,6 @@ canvas.canvas.addEventListener('click', function(ev: MouseEvent) {
 canvas.canvas.addEventListener('mouseup', function(ev: MouseEvent) {
     let emptyMouseUp: boolean = true;
     let lastElemInArray: Shape = allShapes[allShapes.length - 1];
-
-    function include(array, element) {
-        let result = false;
-
-        array.forEach(elem => {
-            if(elem == element) {
-                result = true;
-            }
-        })
-        
-        return result;
-    }
 
     allShapes.forEach(shape => {
         if(!(shape instanceof Line)) {

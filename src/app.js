@@ -49,6 +49,15 @@ var Canvas = (function () {
     Canvas.prototype.addShape = function (shape) {
         allShapes.push(shape);
     };
+    Canvas.prototype.include = function (array, element) {
+        var result = false;
+        array.forEach(function (elem) {
+            if (elem == element) {
+                result = true;
+            }
+        });
+        return result;
+    };
     Canvas.prototype.drawShape = function (shape) {
         if (shape instanceof RectPnt) {
             this.context.fillStyle = String(shape.color);
@@ -61,13 +70,25 @@ var Canvas = (function () {
                 var text = [];
                 for (var i = 0; i < shape.text.length; i++) {
                     text.push(shape.text[i]);
-                    if (this.context.measureText(text.join('').split('\n')[text.join('').split('\n').length - 1]).width > shape.width - 10) {
-                        text.push('\n');
+                    var lastLine = text.join('').split('\n')[text.join('').split('\n').length - 1];
+                    if (this.context.measureText(lastLine).width > shape.width - 10) {
+                        var words = text.join('').split(' ');
+                        var new_text = [];
+                        for (var j = 0; j < words.length; j++) {
+                            if (j != words.length - 1) {
+                                new_text.push(words[j] + " ");
+                            }
+                            else {
+                                new_text.push('\n');
+                                new_text.push(words[j]);
+                            }
+                        }
+                        text = new_text;
                     }
                 }
                 text = text.join('').split('\n');
                 for (var i = 0; i < text.length; i++) {
-                    this.context.fillText(text[i], shape.posX + 5, shape.posY + (i * 10) + 15);
+                    this.context.fillText(text[i], shape.posX + 5, shape.posY + (i * 12) + 15);
                 }
             }
         }
@@ -244,15 +265,6 @@ canvas.canvas.addEventListener('click', function (ev) {
 canvas.canvas.addEventListener('mouseup', function (ev) {
     var emptyMouseUp = true;
     var lastElemInArray = allShapes[allShapes.length - 1];
-    function include(array, element) {
-        var result = false;
-        array.forEach(function (elem) {
-            if (elem == element) {
-                result = true;
-            }
-        });
-        return result;
-    }
     allShapes.forEach(function (shape) {
         if (!(shape instanceof Line)) {
             if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)
