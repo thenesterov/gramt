@@ -207,15 +207,15 @@ class RectPnt extends Rect {
     public pntColor: Colors = Colors.MAIN;
     
     constructor(posX: number = 100, posY: number = 100, width: number = 100, height: number = 100, color: Colors = Colors.USER) {
-        super(posX, posY, width, height, color)
+        super(posX, posY, width, height, color);
         this.point.width = 10;
         this.point.height = 10;
 
-        this.point.posX = this.posX / 2 + this.width - this.point.width / 2 - generalDiffMouseX / 2;
-        this.point.posY = this.posY + this.height;
+        this.point.posX = posX + width / 2 - this.point.width / 2 - generalDiffMouseX / 2;
+        this.point.posY = posY + height;
     }
 
-    public text: string = "Ты и я пуста квартира свечи розы шоколад";
+    public text: string = "";
 
     public move(shape: RectPnt | Point, ev: MouseEvent) {
         shape.posX = ev.offsetX - diffMouseX;

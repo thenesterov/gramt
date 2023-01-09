@@ -180,11 +180,11 @@ var RectPnt = (function (_super) {
         var _this = _super.call(this, posX, posY, width, height, color) || this;
         _this.point = new Point();
         _this.pntColor = Colors.MAIN;
-        _this.text = "Ты и я пуста квартира свечи розы шоколад";
+        _this.text = "";
         _this.point.width = 10;
         _this.point.height = 10;
-        _this.point.posX = _this.posX / 2 + _this.width - _this.point.width / 2 - generalDiffMouseX / 2;
-        _this.point.posY = _this.posY + _this.height;
+        _this.point.posX = posX + width / 2 - _this.point.width / 2 - generalDiffMouseX / 2;
+        _this.point.posY = posY + height;
         return _this;
     }
     RectPnt.prototype.move = function (shape, ev) {
