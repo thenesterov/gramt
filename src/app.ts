@@ -74,7 +74,7 @@ class Canvas {
             this.context.fillRect(shape.point.posX, shape.point.posY, shape.point.width, shape.point.height);
 
             if(shape instanceof Rect) { // to replace
-                this.context.font = "12px Arial";
+                this.context.font = "12px OpenSans";
                 this.context.fillStyle = "#ffffff";
                 
                 let text: string[] = [];
@@ -104,7 +104,7 @@ class Canvas {
                 text = text.join('').split('\n');
 
                 for(let i = 0; i < text.length; i++) {
-                    this.context.fillText(text[i], shape.posX + 5, shape.posY + (i * 12) + 15);
+                    this.context.fillText(text[i], shape.posX + 10, shape.posY + (i * 17) + 20);
                 }
             }
         }
@@ -215,7 +215,7 @@ class RectPnt extends Rect {
         this.point.posY = this.posY + this.height;
     }
 
-    public text: string = "";
+    public text: string = "Ты и я пуста квартира свечи розы шоколад";
 
     public move(shape: RectPnt | Point, ev: MouseEvent) {
         shape.posX = ev.offsetX - diffMouseX;

@@ -65,7 +65,7 @@ var Canvas = (function () {
             this.context.fillStyle = String(shape.pntColor);
             this.context.fillRect(shape.point.posX, shape.point.posY, shape.point.width, shape.point.height);
             if (shape instanceof Rect) {
-                this.context.font = "12px Arial";
+                this.context.font = "12px OpenSans";
                 this.context.fillStyle = "#ffffff";
                 var text = [];
                 for (var i = 0; i < shape.text.length; i++) {
@@ -88,7 +88,7 @@ var Canvas = (function () {
                 }
                 text = text.join('').split('\n');
                 for (var i = 0; i < text.length; i++) {
-                    this.context.fillText(text[i], shape.posX + 5, shape.posY + (i * 12) + 15);
+                    this.context.fillText(text[i], shape.posX + 10, shape.posY + (i * 17) + 20);
                 }
             }
         }
@@ -180,7 +180,7 @@ var RectPnt = (function (_super) {
         var _this = _super.call(this, posX, posY, width, height, color) || this;
         _this.point = new Point();
         _this.pntColor = Colors.MAIN;
-        _this.text = "";
+        _this.text = "Ты и я пуста квартира свечи розы шоколад";
         _this.point.width = 10;
         _this.point.height = 10;
         _this.point.posX = _this.posX / 2 + _this.width - _this.point.width / 2 - generalDiffMouseX / 2;
