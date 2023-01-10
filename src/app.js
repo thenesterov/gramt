@@ -17,7 +17,13 @@ var Colors = (function () {
     function Colors() {
     }
     Colors.MAIN = '#65bbf4';
+    Colors.STATE = '#17212b';
     Colors.USER = '#2b5378';
+    Colors.LOGIC = '#768c9e';
+    Colors.BOT = '#182533';
+    Colors.KB = '#1e2c3a';
+    Colors.RB = '#b580e2';
+    Colors.CB = '#7595ff';
     return Colors;
 }());
 var allShapes = [];
@@ -225,6 +231,69 @@ var RectPnt = (function (_super) {
     };
     return RectPnt;
 }(Rect));
+var State = (function (_super) {
+    __extends(State, _super);
+    function State() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.color = Colors.STATE;
+        return _this;
+    }
+    return State;
+}(RectPnt));
+var User = (function (_super) {
+    __extends(User, _super);
+    function User() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.color = Colors.USER;
+        return _this;
+    }
+    return User;
+}(RectPnt));
+var Logic = (function (_super) {
+    __extends(Logic, _super);
+    function Logic() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.color = Colors.LOGIC;
+        return _this;
+    }
+    return Logic;
+}(RectPnt));
+var Bot = (function (_super) {
+    __extends(Bot, _super);
+    function Bot() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.color = Colors.BOT;
+        return _this;
+    }
+    return Bot;
+}(RectPnt));
+var KeyBoard = (function (_super) {
+    __extends(KeyBoard, _super);
+    function KeyBoard() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.color = Colors.KB;
+        return _this;
+    }
+    return KeyBoard;
+}(RectPnt));
+var ReplyButton = (function (_super) {
+    __extends(ReplyButton, _super);
+    function ReplyButton() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.color = Colors.RB;
+        return _this;
+    }
+    return ReplyButton;
+}(RectPnt));
+var CallbackButton = (function (_super) {
+    __extends(CallbackButton, _super);
+    function CallbackButton() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.color = Colors.CB;
+        return _this;
+    }
+    return CallbackButton;
+}(RectPnt));
 var Line = (function () {
     function Line(fromPosX, fromPosY, toPosX, toPosY, color) {
         if (color === void 0) { color = Colors.MAIN; }
@@ -488,8 +557,26 @@ function renderCanvas() {
 }
 window.requestAnimationFrame(renderCanvas);
 function addState() {
-    canvas.addShape(new RectPnt(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100, Colors.USER));
+    canvas.addShape(new State(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+}
+function addUser() {
+    canvas.addShape(new User(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+}
+function addLogic() {
+    canvas.addShape(new Logic(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+}
+function addBot() {
+    canvas.addShape(new Bot(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
 }
 function addPoint() {
     canvas.addShape(new Point(100 - generalDiffMouseX, 100 - generalDiffMouseY, 10, 10, Colors.MAIN));
+}
+function addKeyBoard() {
+    canvas.addShape(new KeyBoard(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+}
+function addReplyButton() {
+    canvas.addShape(new ReplyButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+}
+function addCallbackButton() {
+    canvas.addShape(new CallbackButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
 }

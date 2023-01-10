@@ -6,7 +6,13 @@ type Color = RGB | RGBA | HEX;
 
 abstract class Colors {
     static MAIN: Color = '#65bbf4';
+    static STATE: Color = '#17212b';
     static USER: Color = '#2b5378';
+    static LOGIC: Color = '#768c9e';
+    static BOT: Color = '#182533';
+    static KB: Color = '#1e2c3a';
+    static RB: Color = '#b580e2';
+    static CB: Color = '#7595ff';
 }
 
 let allShapes: Shape[] = [];
@@ -285,6 +291,34 @@ class RectPnt extends Rect {
             line.move(null, null, this.posX + this.width / 2, this.posY + this.height / 2);
         })
     }
+}
+
+class State extends RectPnt {
+    public color: Colors = Colors.STATE;
+}
+
+class User extends RectPnt {
+    public color: Colors = Colors.USER;
+}
+
+class Logic extends RectPnt {
+    public color: Colors = Colors.LOGIC;
+}
+
+class Bot extends RectPnt {
+    public color: Colors = Colors.BOT;
+}
+
+class KeyBoard extends RectPnt {
+    public color: Colors = Colors.KB;
+}
+
+class ReplyButton extends RectPnt {
+    public color: Colors = Colors.RB;
+}
+
+class CallbackButton extends RectPnt {
+    public color: Colors = Colors.CB;
 }
 
 class Line implements Shape {
@@ -612,9 +646,33 @@ function renderCanvas() {
 window.requestAnimationFrame(renderCanvas);
 
 function addState() {
-    canvas.addShape(new RectPnt(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100, Colors.USER));
+    canvas.addShape(new State(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+}
+
+function addUser() {
+    canvas.addShape(new User(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+}
+
+function addLogic() {
+    canvas.addShape(new Logic(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+}
+
+function addBot() {
+    canvas.addShape(new Bot(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
 }
 
 function addPoint() {
     canvas.addShape(new Point(100 - generalDiffMouseX, 100 - generalDiffMouseY, 10, 10, Colors.MAIN));
+}
+
+function addKeyBoard() {
+    canvas.addShape(new KeyBoard(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+}
+
+function addReplyButton() {
+    canvas.addShape(new ReplyButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+}
+
+function addCallbackButton() {
+    canvas.addShape(new CallbackButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
 }
