@@ -60,18 +60,12 @@ var Canvas = (function () {
     };
     Canvas.prototype.drawShape = function (shape) {
         if (shape instanceof RectPnt) {
-            this.context.fillStyle = String(shape.color);
-            this.context.fillRect(shape.posX, shape.posY, shape.width, shape.height);
-            this.context.fillStyle = String(shape.pntColor);
-            this.context.fillRect(shape.point.posX, shape.point.posY, shape.point.width, shape.point.height);
             if (shape instanceof Rect) {
-                this.context.font = "12px OpenSans";
-                this.context.fillStyle = "#ffffff";
                 var text = [];
                 for (var i = 0; i < shape.text.length; i++) {
                     text.push(shape.text[i]);
                     var lastLine = text.join('').split('\n')[text.join('').split('\n').length - 1];
-                    if (this.context.measureText(lastLine).width > shape.width - 10) {
+                    if (this.context.measureText(lastLine).width > shape.width - 20) {
                         var words = text.join('').split(' ');
                         var new_text = [];
                         for (var j = 0; j < words.length; j++) {
@@ -87,6 +81,13 @@ var Canvas = (function () {
                     }
                 }
                 text = text.join('').split('\n');
+                shape.setText(text);
+                this.context.fillStyle = String(shape.color);
+                this.context.fillRect(shape.posX, shape.posY, shape.width, shape.height);
+                this.context.fillStyle = String(shape.pntColor);
+                this.context.fillRect(shape.point.posX, shape.point.posY, shape.point.width, shape.point.height);
+                this.context.font = "12px OpenSans";
+                this.context.fillStyle = "#ffffff";
                 for (var i = 0; i < text.length; i++) {
                     this.context.fillText(text[i], shape.posX + 10, shape.posY + (i * 17) + 20);
                 }
@@ -183,10 +184,21 @@ var RectPnt = (function (_super) {
         _this.text = "";
         _this.point.width = 10;
         _this.point.height = 10;
-        _this.point.posX = posX + width / 2 - _this.point.width / 2 - generalDiffMouseX / 2;
-        _this.point.posY = posY + height;
+        _this.point.posX = _this.posX + _this.width / 2 - _this.point.width / 2;
+        _this.point.posY = _this.posY + _this.height;
         return _this;
     }
+    RectPnt.prototype.setText = function (text) {
+        this.text = text.join('');
+        var diffHeight = text.length * 17 + 20;
+        this.height = diffHeight;
+        this.point.posY = this.point.posY + diffHeight - this.height;
+        this.path2d = new Path2D();
+        this.path2d.rect(this.posX, this.posY, this.width, diffHeight);
+        this.point.posY = this.posY + diffHeight;
+        this.point.path2d = new Path2D();
+        this.point.path2d.rect(this.posX + this.width / 2 - this.point.width / 2, this.posY + diffHeight, this.point.width, this.point.height);
+    };
     RectPnt.prototype.move = function (shape, ev) {
         var _this = this;
         shape.posX = ev.offsetX - diffMouseX;

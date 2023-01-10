@@ -67,16 +67,7 @@ class Canvas {
 
     public drawShape(shape: Shape) {
         if(shape instanceof RectPnt) {
-            this.context.fillStyle = String(shape.color);
-            this.context.fillRect(shape.posX, shape.posY, shape.width, shape.height);
-
-            this.context.fillStyle = String(shape.pntColor);
-            this.context.fillRect(shape.point.posX, shape.point.posY, shape.point.width, shape.point.height);
-
-            if(shape instanceof Rect) { // to replace
-                this.context.font = "12px OpenSans";
-                this.context.fillStyle = "#ffffff";
-                
+            if(shape instanceof Rect) { // to replace               
                 let text: string[] = [];
 
                 for(let i = 0; i < shape.text.length; i++) {
@@ -84,7 +75,7 @@ class Canvas {
 
                     let lastLine = text.join('').split('\n')[text.join('').split('\n').length - 1];
 
-                    if(this.context.measureText(lastLine).width > shape.width - 10) {
+                    if(this.context.measureText(lastLine).width > shape.width - 20) {
                         let words = text.join('').split(' ');
                         let new_text = [];
 
@@ -102,6 +93,16 @@ class Canvas {
                 }         
 
                 text = text.join('').split('\n');
+                shape.setText(text);
+
+                this.context.fillStyle = String(shape.color);
+                this.context.fillRect(shape.posX, shape.posY, shape.width, shape.height);
+
+                this.context.fillStyle = String(shape.pntColor);
+                this.context.fillRect(shape.point.posX, shape.point.posY, shape.point.width, shape.point.height);
+
+                this.context.font = "12px OpenSans";
+                this.context.fillStyle = "#ffffff";
 
                 for(let i = 0; i < text.length; i++) {
                     this.context.fillText(text[i], shape.posX + 10, shape.posY + (i * 17) + 20);
@@ -205,17 +206,45 @@ class Point extends Rect {
 class RectPnt extends Rect {
     public point: Point = new Point();
     public pntColor: Colors = Colors.MAIN;
+    public text: string = "";
     
     constructor(posX: number = 100, posY: number = 100, width: number = 100, height: number = 100, color: Colors = Colors.USER) {
         super(posX, posY, width, height, color);
         this.point.width = 10;
         this.point.height = 10;
 
-        this.point.posX = posX + width / 2 - this.point.width / 2 - generalDiffMouseX / 2;
-        this.point.posY = posY + height;
+        // this.point.posX = posX + width / 2 - this.point.width / 2 - generalDiffMouseX / 2;
+        this.point.posX = this.posX + this.width / 2 - this.point.width / 2;
+        this.point.posY = this.posY + this.height;
     }
 
-    public text: string = "";
+    public setText(text: string[]) {
+        this.text = text.join('');
+
+        let diffHeight: number = text.length * 17 + 20;
+
+        this.height = diffHeight;
+        this.point.posY = this.point.posY + diffHeight - this.height;
+
+        this.path2d = new Path2D();
+        this.path2d.rect(
+            this.posX,
+            this.posY,
+            this.width,
+            diffHeight
+        )
+
+        this.point.posY = this.posY + diffHeight;
+
+        this.point.path2d = new Path2D();
+        this.point.path2d.rect(
+            this.posX + this.width / 2 - this.point.width / 2,
+            this.posY + diffHeight,
+            this.point.width,
+            this.point.height
+        )
+        
+    }
 
     public move(shape: RectPnt | Point, ev: MouseEvent) {
         shape.posX = ev.offsetX - diffMouseX;
