@@ -17,7 +17,7 @@ var Colors = (function () {
     function Colors() {
     }
     Colors.MAIN = '#65bbf4';
-    Colors.STATE = '#17212b';
+    Colors.STATE = '#1f2b38';
     Colors.USER = '#2b5378';
     Colors.LOGIC = '#768c9e';
     Colors.BOT = '#182533';
@@ -466,9 +466,7 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
             }
         }
         if (shape instanceof Line && !rectWasDeleted) {
-            var entry_left = (ev.offsetX - generalDiffMouseX - shape.fromPosX) / (shape.toPosX - shape.fromPosX);
-            var entry_right = (ev.offsetY - generalDiffMouseY - shape.fromPosY) / (shape.toPosY - shape.fromPosY);
-            if (Math.abs(entry_left - entry_right) <= 0.05) {
+            if (canvas.context.isPointInStroke(shape.path2d, ev.offsetX, ev.offsetY)) {
                 allShapes.splice(allShapes.indexOf(shape), 1);
                 allShapes.forEach(function (jshape) {
                     if (jshape instanceof Rect) {

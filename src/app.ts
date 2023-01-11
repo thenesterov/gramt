@@ -6,7 +6,7 @@ type Color = RGB | RGBA | HEX;
 
 abstract class Colors {
     static MAIN: Color = '#65bbf4';
-    static STATE: Color = '#17212b';
+    static STATE: Color = '#1f2b38';
     static USER: Color = '#2b5378';
     static LOGIC: Color = '#768c9e';
     static BOT: Color = '#182533';
@@ -533,9 +533,7 @@ canvas.canvas.addEventListener('contextmenu', function(ev: MouseEvent) {
             }
         }
         if(shape instanceof Line && !rectWasDeleted) {
-            let entry_left = (ev.offsetX - generalDiffMouseX - shape.fromPosX) / (shape.toPosX - shape.fromPosX);
-            let entry_right = (ev.offsetY - generalDiffMouseY - shape.fromPosY) / (shape.toPosY - shape.fromPosY);
-            if(Math.abs(entry_left - entry_right) <= 0.05) {
+            if(canvas.context.isPointInStroke(shape.path2d, ev.offsetX, ev.offsetY)) {
                 allShapes.splice(allShapes.indexOf(shape), 1);
 
                 allShapes.forEach(jshape => {
