@@ -66,36 +66,41 @@ var Canvas = (function () {
     };
     Canvas.prototype.drawShape = function (shape) {
         if (shape instanceof RectPnt) {
-            if (shape instanceof Rect) {
-                var text = [];
-                for (var i = 0; i < shape.text.length; i++) {
-                    text.push(shape.text[i]);
-                    var lastLine = text.join('').split('\n')[text.join('').split('\n').length - 1];
-                    if (this.context.measureText(lastLine).width > shape.width - 20) {
-                        var words = text.join('').split(' ');
-                        var new_text = [];
-                        for (var j = 0; j < words.length; j++) {
-                            if (j != words.length - 1) {
-                                new_text.push(words[j] + " ");
-                            }
-                            else {
-                                new_text.push('\n');
-                                new_text.push(words[j]);
-                            }
+            var text = [];
+            for (var i = 0; i < shape.text.length; i++) {
+                text.push(shape.text[i]);
+                var lastLine = text.join('').split('\n')[text.join('').split('\n').length - 1];
+                if (this.context.measureText(lastLine).width > shape.width - 20) {
+                    var words = text.join('').split(' ');
+                    var new_text = [];
+                    for (var j = 0; j < words.length; j++) {
+                        if (j != words.length - 1) {
+                            new_text.push(words[j] + " ");
                         }
-                        text = new_text;
+                        else {
+                            new_text.push('\n');
+                            new_text.push(words[j]);
+                        }
                     }
+                    text = new_text;
                 }
-                text = text.join('').split('\n');
-                shape.setText(text);
-                this.context.fillStyle = String(shape.color);
-                this.context.fillRect(shape.posX, shape.posY, shape.width, shape.height);
-                this.context.fillStyle = String(shape.pntColor);
-                this.context.fillRect(shape.point.posX, shape.point.posY, shape.point.width, shape.point.height);
-                this.context.font = "12px OpenSans";
-                this.context.fillStyle = "#ffffff";
+            }
+            text = text.join('').split('\n');
+            shape.setText(text);
+            this.context.fillStyle = String(shape.color);
+            this.context.fillRect(shape.posX, shape.posY, shape.width, shape.height);
+            this.context.fillStyle = String(shape.pntColor);
+            this.context.fillRect(shape.point.posX, shape.point.posY, shape.point.width, shape.point.height);
+            this.context.font = "12px OpenSans";
+            this.context.fillStyle = "#ffffff";
+            if (shape instanceof TextAlignStart) {
                 for (var i = 0; i < text.length; i++) {
                     this.context.fillText(text[i], shape.posX + 10, shape.posY + (i * 17) + 20);
+                }
+            }
+            else if (shape instanceof TextAlignCenter) {
+                for (var i = 0; i < text.length; i++) {
+                    this.context.fillText(text[i], shape.posX + ((shape.width - this.context.measureText(text[i]).width) / 2), shape.posY + (i * 17) + 20);
                 }
             }
         }
@@ -231,69 +236,90 @@ var RectPnt = (function (_super) {
     };
     return RectPnt;
 }(Rect));
+var TextAlignStart = (function (_super) {
+    __extends(TextAlignStart, _super);
+    function TextAlignStart() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return TextAlignStart;
+}(RectPnt));
+var TextAlignCenter = (function (_super) {
+    __extends(TextAlignCenter, _super);
+    function TextAlignCenter() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return TextAlignCenter;
+}(RectPnt));
 var State = (function (_super) {
     __extends(State, _super);
     function State() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.color = Colors.STATE;
+        _this.text = 'STATE';
         return _this;
     }
     return State;
-}(RectPnt));
+}(TextAlignCenter));
 var User = (function (_super) {
     __extends(User, _super);
     function User() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.color = Colors.USER;
+        _this.text = 'USER';
         return _this;
     }
     return User;
-}(RectPnt));
+}(TextAlignStart));
 var Logic = (function (_super) {
     __extends(Logic, _super);
     function Logic() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.color = Colors.LOGIC;
+        _this.text = 'LOGIC';
         return _this;
     }
     return Logic;
-}(RectPnt));
+}(TextAlignCenter));
 var Bot = (function (_super) {
     __extends(Bot, _super);
     function Bot() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.color = Colors.BOT;
+        _this.text = 'BOT';
         return _this;
     }
     return Bot;
-}(RectPnt));
+}(TextAlignStart));
 var KeyBoard = (function (_super) {
     __extends(KeyBoard, _super);
     function KeyBoard() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.color = Colors.KB;
+        _this.text = 'KB';
         return _this;
     }
     return KeyBoard;
-}(RectPnt));
+}(TextAlignCenter));
 var ReplyButton = (function (_super) {
     __extends(ReplyButton, _super);
     function ReplyButton() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.color = Colors.RB;
+        _this.text = 'RB';
         return _this;
     }
     return ReplyButton;
-}(RectPnt));
+}(TextAlignCenter));
 var CallbackButton = (function (_super) {
     __extends(CallbackButton, _super);
     function CallbackButton() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.color = Colors.CB;
+        _this.text = 'CB';
         return _this;
     }
     return CallbackButton;
-}(RectPnt));
+}(TextAlignCenter));
 var Line = (function () {
     function Line(fromPosX, fromPosY, toPosX, toPosY, color) {
         if (color === void 0) { color = Colors.MAIN; }

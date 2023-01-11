@@ -72,8 +72,7 @@ class Canvas {
     }
 
     public drawShape(shape: Shape) {
-        if(shape instanceof RectPnt) {
-            if(shape instanceof Rect) { // to replace               
+        if(shape instanceof RectPnt) {             
                 let text: string[] = [];
 
                 for(let i = 0; i < shape.text.length; i++) {
@@ -110,10 +109,17 @@ class Canvas {
                 this.context.font = "12px OpenSans";
                 this.context.fillStyle = "#ffffff";
 
-                for(let i = 0; i < text.length; i++) {
-                    this.context.fillText(text[i], shape.posX + 10, shape.posY + (i * 17) + 20);
+                if(shape instanceof TextAlignStart) {
+                    for(let i = 0; i < text.length; i++) {
+                        this.context.fillText(text[i], shape.posX + 10, shape.posY + (i * 17) + 20);
+                    }
+                } else if (shape instanceof TextAlignCenter) {
+                    for(let i = 0; i < text.length; i++) {
+                        this.context.fillText(text[i],
+                            shape.posX + ((shape.width - this.context.measureText(text[i]).width) / 2),
+                            shape.posY + (i * 17) + 20);
+                    }
                 }
-            }
         }
         else if(shape instanceof Point) {
             this.context.fillStyle = String(shape.color);
@@ -293,32 +299,42 @@ class RectPnt extends Rect {
     }
 }
 
-class State extends RectPnt {
+class TextAlignStart extends RectPnt {}
+class TextAlignCenter extends RectPnt {}
+
+class State extends TextAlignCenter {
     public color: Colors = Colors.STATE;
+    public text: string = 'STATE';
 }
 
-class User extends RectPnt {
+class User extends TextAlignStart {
     public color: Colors = Colors.USER;
+    public text: string = 'USER';
 }
 
-class Logic extends RectPnt {
+class Logic extends TextAlignCenter {
     public color: Colors = Colors.LOGIC;
+    public text: string = 'LOGIC';
 }
 
-class Bot extends RectPnt {
+class Bot extends TextAlignStart {
     public color: Colors = Colors.BOT;
+    public text: string = 'BOT';
 }
 
-class KeyBoard extends RectPnt {
+class KeyBoard extends TextAlignCenter {
     public color: Colors = Colors.KB;
+    public text: string = 'KB';
 }
 
-class ReplyButton extends RectPnt {
+class ReplyButton extends TextAlignCenter {
     public color: Colors = Colors.RB;
+    public text: string = 'RB';
 }
 
-class CallbackButton extends RectPnt {
+class CallbackButton extends TextAlignCenter {
     public color: Colors = Colors.CB;
+    public text: string = 'CB';
 }
 
 class Line implements Shape {
