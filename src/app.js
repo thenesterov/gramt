@@ -177,7 +177,9 @@ var Rect = (function () {
 var Point = (function (_super) {
     __extends(Point, _super);
     function Point() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.connections = [];
+        return _this;
     }
     return Point;
 }(Rect));
@@ -384,6 +386,10 @@ canvas.canvas.addEventListener('mouseup', function (ev) {
                         if (selectedShape instanceof Rect) {
                             shape.linesTo.push(lastElemInArray);
                             selectedShape.linesFrom.push(lastElemInArray);
+                            if (selectedShape instanceof RectPnt && shape instanceof RectPnt) {
+                                shape.connection_above.push(selectedShape);
+                                selectedShape.connection_below.push(shape);
+                            }
                         }
                     }
                     emptyMouseUp = false;
@@ -475,6 +481,9 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
     var rectWasDeleted = false;
     var slf = [];
     var slt = [];
+    var sca = [];
+    var scb = [];
+    var deletedShape;
     allShapes.forEach(function (shape) {
         if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.contextmenuable) {
             ctxmenuOnShape = true;
@@ -482,6 +491,9 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
             if (shape instanceof Rect) {
                 slf = shape.linesFrom;
                 slt = shape.linesTo;
+                sca = shape.connection_above;
+                scb = shape.connection_below;
+                deletedShape = shape;
                 allShapes.splice(allShapes.indexOf(shape), 1);
                 shape.linesFrom.forEach(function (line) {
                     allShapes.splice(allShapes.indexOf(line), 1);
@@ -494,6 +506,22 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
         if (shape instanceof Line && !rectWasDeleted) {
             if (canvas.context.isPointInStroke(shape.path2d, ev.offsetX, ev.offsetY)) {
                 allShapes.splice(allShapes.indexOf(shape), 1);
+                var jsca_1;
+                var jscb_1;
+                allShapes.forEach(function (jshape) {
+                    if (jshape instanceof RectPnt) {
+                        jshape.linesFrom.forEach(function (jline) {
+                            if (jline == shape) {
+                                jsca_1 = jshape;
+                            }
+                        });
+                        jshape.linesTo.forEach(function (jline) {
+                            if (jline == shape) {
+                                jscb_1 = jshape;
+                            }
+                        });
+                    }
+                });
                 allShapes.forEach(function (jshape) {
                     if (jshape instanceof Rect) {
                         jshape.linesFrom.forEach(function (jline) {
@@ -512,6 +540,8 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
                         });
                     }
                 });
+                jsca_1.connection_below.splice(jsca_1.connection_below.indexOf(jscb_1), 1);
+                jscb_1.connection_above.splice(jscb_1.connection_above.indexOf(jsca_1), 1);
             }
         }
     });
@@ -532,6 +562,28 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
                 shape.linesFrom.forEach(function (lt) {
                     if (lt == line) {
                         shape.linesFrom.splice(shape.linesFrom.indexOf(lt), 1);
+                    }
+                });
+            }
+        });
+    });
+    sca.forEach(function (rect) {
+        allShapes.forEach(function (shape) {
+            if (shape instanceof Rect) {
+                shape.connection_below.forEach(function (ca) {
+                    if (shape == rect && ca == deletedShape) {
+                        shape.connection_below.splice(shape.connection_below.indexOf(ca), 1);
+                    }
+                });
+            }
+        });
+    });
+    scb.forEach(function (rect) {
+        allShapes.forEach(function (shape) {
+            if (shape instanceof Rect) {
+                shape.connection_above.forEach(function (cb) {
+                    if (shape == rect && cb == deletedShape) {
+                        shape.connection_above.splice(shape.connection_above.indexOf(cb), 1);
                     }
                 });
             }
