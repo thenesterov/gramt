@@ -1,79 +1,61 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var Colors = (function () {
-    function Colors() {
-    }
-    Colors.MAIN = '#65bbf4';
-    Colors.STATE = '#1f2b38';
-    Colors.USER = '#2b5378';
-    Colors.LOGIC = '#768c9e';
-    Colors.BOT = '#182533';
-    Colors.KB = '#1e2c3a';
-    Colors.RB = '#b580e2';
-    Colors.CB = '#7595ff';
-    return Colors;
-}());
-var allShapes = [];
-var mouseIsDown = false;
-var mouseIsCtxmenu = false;
-var mouseOnRectPnt = false;
-var mouseOnPoint = false;
-var ctxmenuOnShape = false;
-var lineIsActive = false;
-var mouseIsDbl = false;
-var diffMouseX = 0;
-var diffMouseY = 0;
-var mouseXMove = 0;
-var mouseYMove = 0;
-var generalDiffMouseX = 0;
-var generalDiffMouseY = 0;
-var clearRectX = 0;
-var clearRectY = 0;
-var selectedShape;
-var Canvas = (function () {
-    function Canvas() {
-        var canvas = document.getElementById('canvas');
+class Colors {
+}
+Colors.MAIN = '#65bbf4';
+Colors.STATE = '#1f2b38';
+Colors.USER = '#2b5378';
+Colors.LOGIC = '#768c9e';
+Colors.BOT = '#182533';
+Colors.KB = '#1e2c3a';
+Colors.RB = '#b580e2';
+Colors.CB = '#7595ff';
+let allShapes = [];
+let mouseIsDown = false;
+let mouseIsCtxmenu = false;
+let mouseOnRectPnt = false;
+let mouseOnPoint = false;
+let ctxmenuOnShape = false;
+let lineIsActive = false;
+let mouseIsDbl = false;
+let diffMouseX = 0;
+let diffMouseY = 0;
+let mouseXMove = 0;
+let mouseYMove = 0;
+let generalDiffMouseX = 0;
+let generalDiffMouseY = 0;
+let clearRectX = 0;
+let clearRectY = 0;
+let selectedShape;
+class Canvas {
+    constructor() {
+        let canvas = document.getElementById('canvas');
         canvas.width = document.getElementsByClassName('right')[0].offsetWidth;
         canvas.height = window.innerHeight - 10;
-        var context = canvas.getContext('2d');
+        let context = canvas.getContext('2d');
         this.canvas = canvas;
         this.context = context;
     }
-    Canvas.prototype.addShape = function (shape) {
+    addShape(shape) {
         allShapes.push(shape);
-    };
-    Canvas.prototype.include = function (array, element) {
-        var result = false;
-        array.forEach(function (elem) {
+    }
+    include(array, element) {
+        let result = false;
+        array.forEach(elem => {
             if (elem == element) {
                 result = true;
             }
         });
         return result;
-    };
-    Canvas.prototype.drawShape = function (shape) {
+    }
+    drawShape(shape) {
         if (shape instanceof RectPnt) {
-            var text = [];
-            for (var i = 0; i < shape.text.length; i++) {
+            let text = [];
+            for (let i = 0; i < shape.text.length; i++) {
                 text.push(shape.text[i]);
-                var lastLine = text.join('').split('\n')[text.join('').split('\n').length - 1];
+                let lastLine = text.join('').split('\n')[text.join('').split('\n').length - 1];
                 if (this.context.measureText(lastLine).width > shape.width - 20) {
-                    var words = text.join('').split(' ');
-                    var new_text = [];
-                    for (var j = 0; j < words.length; j++) {
+                    let words = text.join('').split(' ');
+                    let new_text = [];
+                    for (let j = 0; j < words.length; j++) {
                         if (j != words.length - 1) {
                             new_text.push(words[j] + " ");
                         }
@@ -94,12 +76,12 @@ var Canvas = (function () {
             this.context.font = "12px OpenSans";
             this.context.fillStyle = "#ffffff";
             if (shape instanceof TextAlignStart) {
-                for (var i = 0; i < text.length; i++) {
+                for (let i = 0; i < text.length; i++) {
                     this.context.fillText(text[i], shape.posX + 10, shape.posY + (i * 17) + 20);
                 }
             }
             else if (shape instanceof TextAlignCenter) {
-                for (var i = 0; i < text.length; i++) {
+                for (let i = 0; i < text.length; i++) {
                     this.context.fillText(text[i], shape.posX + ((shape.width - this.context.measureText(text[i]).width) / 2), shape.posY + (i * 17) + 20);
                 }
             }
@@ -116,21 +98,12 @@ var Canvas = (function () {
             this.context.lineTo(shape.toPosX, shape.toPosY);
             this.context.stroke();
         }
-    };
-    return Canvas;
-}());
-var Shape = (function () {
-    function Shape() {
     }
-    return Shape;
-}());
-var Rect = (function () {
-    function Rect(posX, posY, width, height, color) {
-        if (posX === void 0) { posX = 100; }
-        if (posY === void 0) { posY = 100; }
-        if (width === void 0) { width = 100; }
-        if (height === void 0) { height = 100; }
-        if (color === void 0) { color = Colors.USER; }
+}
+class Shape {
+}
+class Rect {
+    constructor(posX = 100, posY = 100, width = 100, height = 100, color = Colors.USER) {
         this.posX = 100;
         this.posY = 100;
         this.width = 100;
@@ -152,58 +125,46 @@ var Rect = (function () {
         this.color = color;
         this.path2d.rect(this.posX, this.posY, this.width, this.height);
     }
-    Rect.prototype.move = function (shape, ev) {
-        var _this = this;
+    move(shape, ev) {
         shape.posX = ev.offsetX - diffMouseX;
         shape.posY = ev.offsetY - diffMouseY;
         shape.path2d = new Path2D();
         shape.path2d.rect(shape.posX, shape.posY, shape.width, shape.height);
-        this.linesFrom.forEach(function (line) {
+        this.linesFrom.forEach(line => {
             if (shape instanceof Point) {
-                line.move(_this.posX + _this.width / 2, _this.posY + _this.height / 2, null, null);
+                line.move(this.posX + this.width / 2, this.posY + this.height / 2, null, null);
             }
             else if (shape instanceof RectPnt) {
-                var newPosX = shape.point.posX + (shape.width / 2);
-                var newPosY = shape.point.posY + (shape.point.height / 2);
+                let newPosX = shape.point.posX + (shape.width / 2);
+                let newPosY = shape.point.posY + (shape.point.height / 2);
                 line.move(newPosX, newPosY, null, null);
             }
         });
-        this.linesTo.forEach(function (line) {
-            line.move(null, null, _this.posX + _this.width / 2, _this.posY + _this.height / 2);
+        this.linesTo.forEach(line => {
+            line.move(null, null, this.posX + this.width / 2, this.posY + this.height / 2);
         });
-    };
-    return Rect;
-}());
-var Point = (function (_super) {
-    __extends(Point, _super);
-    function Point() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.connections = [];
-        return _this;
     }
-    return Point;
-}(Rect));
-var RectPnt = (function (_super) {
-    __extends(RectPnt, _super);
-    function RectPnt(posX, posY, width, height, color) {
-        if (posX === void 0) { posX = 100; }
-        if (posY === void 0) { posY = 100; }
-        if (width === void 0) { width = 100; }
-        if (height === void 0) { height = 100; }
-        if (color === void 0) { color = Colors.USER; }
-        var _this = _super.call(this, posX, posY, width, height, color) || this;
-        _this.point = new Point();
-        _this.pntColor = Colors.MAIN;
-        _this.text = "";
-        _this.point.width = 10;
-        _this.point.height = 10;
-        _this.point.posX = _this.posX + _this.width / 2 - _this.point.width / 2;
-        _this.point.posY = _this.posY + _this.height;
-        return _this;
+}
+class Point extends Rect {
+    constructor() {
+        super(...arguments);
+        this.connections = [];
     }
-    RectPnt.prototype.setText = function (text) {
+}
+class RectPnt extends Rect {
+    constructor(posX = 100, posY = 100, width = 100, height = 100, color = Colors.USER) {
+        super(posX, posY, width, height, color);
+        this.point = new Point();
+        this.pntColor = Colors.MAIN;
+        this.text = "";
+        this.point.width = 10;
+        this.point.height = 10;
+        this.point.posX = this.posX + this.width / 2 - this.point.width / 2;
+        this.point.posY = this.posY + this.height;
+    }
+    setText(text) {
         this.text = text.join('');
-        var diffHeight = text.length * 17 + 20;
+        let diffHeight = text.length * 17 + 20;
         this.height = diffHeight;
         this.point.posY = this.point.posY + diffHeight - this.height;
         this.path2d = new Path2D();
@@ -211,9 +172,8 @@ var RectPnt = (function (_super) {
         this.point.posY = this.posY + diffHeight;
         this.point.path2d = new Path2D();
         this.point.path2d.rect(this.posX + this.width / 2 - this.point.width / 2, this.posY + diffHeight, this.point.width, this.point.height);
-    };
-    RectPnt.prototype.move = function (shape, ev) {
-        var _this = this;
+    }
+    move(shape, ev) {
         shape.posX = ev.offsetX - diffMouseX;
         shape.posY = ev.offsetY - diffMouseY;
         shape.path2d = new Path2D();
@@ -222,109 +182,76 @@ var RectPnt = (function (_super) {
         this.point.posY = this.posY + this.height;
         this.point.path2d = new Path2D();
         this.point.path2d.rect(this.point.posX, this.point.posY, this.point.width, this.point.height);
-        this.linesFrom.forEach(function (line) {
+        this.linesFrom.forEach(line => {
             if (shape instanceof Point) {
-                line.move(_this.posX + _this.width / 2, _this.posY + _this.height / 2, null, null);
+                line.move(this.posX + this.width / 2, this.posY + this.height / 2, null, null);
             }
             else if (shape instanceof RectPnt) {
-                var newPosX = _this.point.posX + (_this.point.width / 2);
-                var newPosY = _this.point.posY + (_this.point.height / 2);
+                let newPosX = this.point.posX + (this.point.width / 2);
+                let newPosY = this.point.posY + (this.point.height / 2);
                 line.move(newPosX, newPosY, null, null);
             }
         });
-        this.linesTo.forEach(function (line) {
-            line.move(null, null, _this.posX + _this.width / 2, _this.posY + _this.height / 2);
+        this.linesTo.forEach(line => {
+            line.move(null, null, this.posX + this.width / 2, this.posY + this.height / 2);
         });
-    };
-    return RectPnt;
-}(Rect));
-var TextAlignStart = (function (_super) {
-    __extends(TextAlignStart, _super);
-    function TextAlignStart() {
-        return _super !== null && _super.apply(this, arguments) || this;
     }
-    return TextAlignStart;
-}(RectPnt));
-var TextAlignCenter = (function (_super) {
-    __extends(TextAlignCenter, _super);
-    function TextAlignCenter() {
-        return _super !== null && _super.apply(this, arguments) || this;
+}
+class TextAlignStart extends RectPnt {
+}
+class TextAlignCenter extends RectPnt {
+}
+class State extends TextAlignCenter {
+    constructor() {
+        super(...arguments);
+        this.color = Colors.STATE;
+        this.text = 'STATE';
     }
-    return TextAlignCenter;
-}(RectPnt));
-var State = (function (_super) {
-    __extends(State, _super);
-    function State() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.color = Colors.STATE;
-        _this.text = 'STATE';
-        return _this;
+}
+class User extends TextAlignStart {
+    constructor() {
+        super(...arguments);
+        this.color = Colors.USER;
+        this.text = 'USER';
     }
-    return State;
-}(TextAlignCenter));
-var User = (function (_super) {
-    __extends(User, _super);
-    function User() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.color = Colors.USER;
-        _this.text = 'USER';
-        return _this;
+}
+class Logic extends TextAlignCenter {
+    constructor() {
+        super(...arguments);
+        this.color = Colors.LOGIC;
+        this.text = 'LOGIC';
     }
-    return User;
-}(TextAlignStart));
-var Logic = (function (_super) {
-    __extends(Logic, _super);
-    function Logic() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.color = Colors.LOGIC;
-        _this.text = 'LOGIC';
-        return _this;
+}
+class Bot extends TextAlignStart {
+    constructor() {
+        super(...arguments);
+        this.color = Colors.BOT;
+        this.text = 'BOT';
     }
-    return Logic;
-}(TextAlignCenter));
-var Bot = (function (_super) {
-    __extends(Bot, _super);
-    function Bot() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.color = Colors.BOT;
-        _this.text = 'BOT';
-        return _this;
+}
+class KeyBoard extends TextAlignCenter {
+    constructor() {
+        super(...arguments);
+        this.color = Colors.KB;
+        this.text = 'KB';
     }
-    return Bot;
-}(TextAlignStart));
-var KeyBoard = (function (_super) {
-    __extends(KeyBoard, _super);
-    function KeyBoard() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.color = Colors.KB;
-        _this.text = 'KB';
-        return _this;
+}
+class ReplyButton extends TextAlignCenter {
+    constructor() {
+        super(...arguments);
+        this.color = Colors.RB;
+        this.text = 'RB';
     }
-    return KeyBoard;
-}(TextAlignCenter));
-var ReplyButton = (function (_super) {
-    __extends(ReplyButton, _super);
-    function ReplyButton() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.color = Colors.RB;
-        _this.text = 'RB';
-        return _this;
+}
+class CallbackButton extends TextAlignCenter {
+    constructor() {
+        super(...arguments);
+        this.color = Colors.CB;
+        this.text = 'CB';
     }
-    return ReplyButton;
-}(TextAlignCenter));
-var CallbackButton = (function (_super) {
-    __extends(CallbackButton, _super);
-    function CallbackButton() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.color = Colors.CB;
-        _this.text = 'CB';
-        return _this;
-    }
-    return CallbackButton;
-}(TextAlignCenter));
-var Line = (function () {
-    function Line(fromPosX, fromPosY, toPosX, toPosY, color) {
-        if (color === void 0) { color = Colors.MAIN; }
+}
+class Line {
+    constructor(fromPosX, fromPosY, toPosX, toPosY, color = Colors.MAIN) {
         this.color = Colors.MAIN;
         this.movable = false;
         this.clickdownable = false;
@@ -339,12 +266,7 @@ var Line = (function () {
         this.path2d.moveTo(fromPosX, fromPosY);
         this.path2d.lineTo(toPosX, toPosY);
     }
-    Line.prototype.move = function (offsetFromX, offsetFromY, offsetToX, offsetToY, targetRect) {
-        if (offsetFromX === void 0) { offsetFromX = null; }
-        if (offsetFromY === void 0) { offsetFromY = null; }
-        if (offsetToX === void 0) { offsetToX = null; }
-        if (offsetToY === void 0) { offsetToY = null; }
-        if (targetRect === void 0) { targetRect = null; }
+    move(offsetFromX = null, offsetFromY = null, offsetToX = null, offsetToY = null, targetRect = null) {
         if (offsetFromX == null && offsetFromY == null) {
             if (targetRect == null) {
                 this.toPosX = offsetToX;
@@ -364,17 +286,16 @@ var Line = (function () {
         this.path2d = new Path2D();
         this.path2d.moveTo(this.fromPosX, this.fromPosY);
         this.path2d.lineTo(this.toPosX, this.toPosY);
-    };
-    return Line;
-}());
-var canvas = new Canvas();
+    }
+}
+const canvas = new Canvas();
 canvas.canvas.addEventListener('click', function (ev) {
-    console.log("click ".concat(ev.offsetX, ", ").concat(ev.offsetY));
+    console.log(`click ${ev.offsetX}, ${ev.offsetY}`);
 });
 canvas.canvas.addEventListener('mouseup', function (ev) {
-    var emptyMouseUp = true;
-    var lastElemInArray = allShapes[allShapes.length - 1];
-    allShapes.forEach(function (shape) {
+    let emptyMouseUp = true;
+    let lastElemInArray = allShapes[allShapes.length - 1];
+    allShapes.forEach(shape => {
         if (!(shape instanceof Line)) {
             if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)
                 && (mouseOnRectPnt || mouseOnPoint)
@@ -386,6 +307,36 @@ canvas.canvas.addEventListener('mouseup', function (ev) {
                         if (selectedShape instanceof Rect) {
                             shape.linesTo.push(lastElemInArray);
                             selectedShape.linesFrom.push(lastElemInArray);
+                            function getAllConnectionsOfPoint(connections) {
+                                let allNestings = [];
+                                for (let i = 0; i < connections.length; i++) {
+                                    let connection_i = connections[i];
+                                    if (connection_i instanceof RectPnt) {
+                                        allNestings.push(connection_i);
+                                    }
+                                    else if (connection_i instanceof Point) {
+                                        allNestings.push(...getAllConnectionsOfPoint(connection_i.connections));
+                                    }
+                                }
+                                return allNestings;
+                            }
+                            if (selectedShape instanceof RectPnt && shape instanceof Point) {
+                                shape.connections.push(selectedShape);
+                                selectedShape.connection_below.push(...getAllConnectionsOfPoint(shape.connections));
+                                selectedShape.connection_below.splice(selectedShape.connection_below.indexOf(selectedShape), 1);
+                            }
+                            if (selectedShape instanceof Point && shape instanceof Point) {
+                                shape.connections.push(...getAllConnectionsOfPoint(selectedShape.connections));
+                                selectedShape.connections.push(...getAllConnectionsOfPoint(shape.connections));
+                                let connectionsOfSelectedShape = getAllConnectionsOfPoint(selectedShape.connections);
+                                let connectionsOfShape = getAllConnectionsOfPoint(shape.connections);
+                                shape.connections = Array.from(new Set(shape.connections));
+                                selectedShape.connections = Array.from(new Set(selectedShape.connections));
+                            }
+                            if (selectedShape instanceof Point && shape instanceof RectPnt) {
+                                shape.connection_above.push(...getAllConnectionsOfPoint(selectedShape.connections));
+                                selectedShape.connections.push(selectedShape);
+                            }
                             if (selectedShape instanceof RectPnt && shape instanceof RectPnt) {
                                 shape.connection_above.push(selectedShape);
                                 selectedShape.connection_below.push(shape);
@@ -423,7 +374,7 @@ canvas.canvas.addEventListener('mouseup', function (ev) {
     selectedShape = null;
 });
 canvas.canvas.addEventListener('mousedown', function (ev) {
-    allShapes.forEach(function (shape) {
+    allShapes.forEach(shape => {
         if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.clickdownable) {
             mouseIsDown = true;
             if (!mouseIsDbl) {
@@ -446,13 +397,13 @@ canvas.canvas.addEventListener('mousedown', function (ev) {
 });
 canvas.canvas.addEventListener('mousemove', function (ev) {
     if (mouseOnRectPnt) {
-        var lastElemInArray = allShapes[allShapes.length - 1];
+        let lastElemInArray = allShapes[allShapes.length - 1];
         if (lastElemInArray instanceof Line) {
             lastElemInArray.move(null, null, ev.offsetX - generalDiffMouseX, ev.offsetY - generalDiffMouseY);
         }
     }
     if (mouseIsDown && mouseOnPoint) {
-        var lastElemInArray = allShapes[allShapes.length - 1];
+        let lastElemInArray = allShapes[allShapes.length - 1];
         if (lastElemInArray instanceof Line) {
             lastElemInArray.move(null, null, ev.offsetX - generalDiffMouseX, ev.offsetY - generalDiffMouseY);
         }
@@ -466,8 +417,8 @@ canvas.canvas.addEventListener('mousemove', function (ev) {
         }
     }
     if (mouseIsDown && !ctxmenuOnShape && mouseIsCtxmenu) {
-        var diffMouseXMove = (mouseXMove - ev.offsetX) * (-1);
-        var diffMouseYMove = (mouseYMove - ev.offsetY) * (-1);
+        let diffMouseXMove = (mouseXMove - ev.offsetX) * (-1);
+        let diffMouseYMove = (mouseYMove - ev.offsetY) * (-1);
         generalDiffMouseX += diffMouseXMove;
         generalDiffMouseY += diffMouseYMove;
         canvas.context.translate(diffMouseXMove, diffMouseYMove);
@@ -478,13 +429,13 @@ canvas.canvas.addEventListener('mousemove', function (ev) {
     }
 });
 canvas.canvas.addEventListener('contextmenu', function (ev) {
-    var rectWasDeleted = false;
-    var slf = [];
-    var slt = [];
-    var sca = [];
-    var scb = [];
-    var deletedShape;
-    allShapes.forEach(function (shape) {
+    let rectWasDeleted = false;
+    let slf = [];
+    let slt = [];
+    let sca = [];
+    let scb = [];
+    let deletedShape;
+    allShapes.forEach(shape => {
         if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.contextmenuable) {
             ctxmenuOnShape = true;
             rectWasDeleted = true;
@@ -495,10 +446,10 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
                 scb = shape.connection_below;
                 deletedShape = shape;
                 allShapes.splice(allShapes.indexOf(shape), 1);
-                shape.linesFrom.forEach(function (line) {
+                shape.linesFrom.forEach(line => {
                     allShapes.splice(allShapes.indexOf(line), 1);
                 });
-                shape.linesTo.forEach(function (line) {
+                shape.linesTo.forEach(line => {
                     allShapes.splice(allShapes.indexOf(line), 1);
                 });
             }
@@ -506,49 +457,49 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
         if (shape instanceof Line && !rectWasDeleted) {
             if (canvas.context.isPointInStroke(shape.path2d, ev.offsetX, ev.offsetY)) {
                 allShapes.splice(allShapes.indexOf(shape), 1);
-                var jsca_1;
-                var jscb_1;
-                allShapes.forEach(function (jshape) {
+                let jsca;
+                let jscb;
+                allShapes.forEach(jshape => {
                     if (jshape instanceof RectPnt) {
-                        jshape.linesFrom.forEach(function (jline) {
+                        jshape.linesFrom.forEach(jline => {
                             if (jline == shape) {
-                                jsca_1 = jshape;
+                                jsca = jshape;
                             }
                         });
-                        jshape.linesTo.forEach(function (jline) {
+                        jshape.linesTo.forEach(jline => {
                             if (jline == shape) {
-                                jscb_1 = jshape;
+                                jscb = jshape;
                             }
                         });
                     }
                 });
-                allShapes.forEach(function (jshape) {
+                allShapes.forEach(jshape => {
                     if (jshape instanceof Rect) {
-                        jshape.linesFrom.forEach(function (jline) {
+                        jshape.linesFrom.forEach(jline => {
                             if (jline == shape) {
                                 jshape.linesFrom.splice(jshape.linesFrom.indexOf(jline), 1);
                             }
                         });
                     }
                 });
-                allShapes.forEach(function (jshape) {
+                allShapes.forEach(jshape => {
                     if (jshape instanceof Rect) {
-                        jshape.linesTo.forEach(function (jline) {
+                        jshape.linesTo.forEach(jline => {
                             if (jline == shape) {
                                 jshape.linesTo.splice(jshape.linesTo.indexOf(jline), 1);
                             }
                         });
                     }
                 });
-                jsca_1.connection_below.splice(jsca_1.connection_below.indexOf(jscb_1), 1);
-                jscb_1.connection_above.splice(jscb_1.connection_above.indexOf(jsca_1), 1);
+                jsca.connection_below.splice(jsca.connection_below.indexOf(jscb), 1);
+                jscb.connection_above.splice(jscb.connection_above.indexOf(jsca), 1);
             }
         }
     });
-    slf.forEach(function (line) {
-        allShapes.forEach(function (shape) {
+    slf.forEach(line => {
+        allShapes.forEach(shape => {
             if (shape instanceof Rect) {
-                shape.linesTo.forEach(function (lf) {
+                shape.linesTo.forEach(lf => {
                     if (lf == line) {
                         shape.linesTo.splice(shape.linesTo.indexOf(lf), 1);
                     }
@@ -556,10 +507,10 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
             }
         });
     });
-    slt.forEach(function (line) {
-        allShapes.forEach(function (shape) {
+    slt.forEach(line => {
+        allShapes.forEach(shape => {
             if (shape instanceof Rect) {
-                shape.linesFrom.forEach(function (lt) {
+                shape.linesFrom.forEach(lt => {
                     if (lt == line) {
                         shape.linesFrom.splice(shape.linesFrom.indexOf(lt), 1);
                     }
@@ -567,10 +518,10 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
             }
         });
     });
-    sca.forEach(function (rect) {
-        allShapes.forEach(function (shape) {
+    sca.forEach(rect => {
+        allShapes.forEach(shape => {
             if (shape instanceof Rect) {
-                shape.connection_below.forEach(function (ca) {
+                shape.connection_below.forEach(ca => {
                     if (shape == rect && ca == deletedShape) {
                         shape.connection_below.splice(shape.connection_below.indexOf(ca), 1);
                     }
@@ -578,10 +529,10 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
             }
         });
     });
-    scb.forEach(function (rect) {
-        allShapes.forEach(function (shape) {
+    scb.forEach(rect => {
+        allShapes.forEach(shape => {
             if (shape instanceof Rect) {
-                shape.connection_above.forEach(function (cb) {
+                shape.connection_above.forEach(cb => {
                     if (shape == rect && cb == deletedShape) {
                         shape.connection_above.splice(shape.connection_above.indexOf(cb), 1);
                     }
@@ -597,7 +548,7 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
     }
 });
 canvas.canvas.addEventListener('dblclick', function (ev) {
-    allShapes.forEach(function (shape) {
+    allShapes.forEach(shape => {
         if (shape instanceof Point) {
             if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.dblclickable) {
                 if (shape instanceof Point) {
@@ -612,19 +563,19 @@ canvas.canvas.addEventListener('dblclick', function (ev) {
         }
     });
 });
-var countAllShapes = 0;
+let countAllShapes = 0;
 function renderCanvas() {
     canvas.context.clearRect(clearRectX, clearRectY, canvas.canvas.width, canvas.canvas.height);
     if (countAllShapes != allShapes.length) {
         console.log('cb');
     }
     countAllShapes = allShapes.length;
-    allShapes.forEach(function (shape) {
+    allShapes.forEach(shape => {
         if (shape instanceof Line) {
             canvas.drawShape(shape);
         }
     });
-    allShapes.forEach(function (shape) {
+    allShapes.forEach(shape => {
         if (shape instanceof Rect) {
             canvas.drawShape(shape);
         }

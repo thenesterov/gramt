@@ -163,8 +163,8 @@ class Rect implements Shape {
 
     public path2d: Path2D = new Path2D;
 
-    public connection_above: RectPnt[] = [];
-    public connection_below: RectPnt[] = [];
+    public connection_above: Rect[] = [];
+    public connection_below: Rect[] = [];
 
     public linesFrom: Line[] = [];
     public linesTo: Line[] = [];
@@ -421,7 +421,49 @@ canvas.canvas.addEventListener('mouseup', function(ev: MouseEvent) {
                         if(selectedShape instanceof Rect) {
                             shape.linesTo.push(lastElemInArray);
                             selectedShape.linesFrom.push(lastElemInArray);
-                            
+
+                            function getAllConnectionsOfPoint(connections: Rect[]): Rect[] {
+                                let allNestings: Rect[] = [];
+                                
+                                for(let i = 0; i < connections.length; i++) {
+                                    let connection_i = connections[i];
+                                    if(connection_i instanceof RectPnt) {
+                                        allNestings.push(connection_i);
+                                    } else if(connection_i instanceof Point) {
+                                        allNestings.push(...getAllConnectionsOfPoint(connection_i.connections));
+                                    }
+                                }
+
+                                return allNestings;
+                            }
+
+                            if(selectedShape instanceof RectPnt && shape instanceof Point) {
+                                shape.connections.push(selectedShape);
+                                selectedShape.connection_below.push(...getAllConnectionsOfPoint(shape.connections));
+                                selectedShape.connection_below.splice(selectedShape.connection_below.indexOf(selectedShape), 1); 
+                            }
+
+                            if(selectedShape instanceof Point && shape instanceof Point) {
+                                shape.connections.push(...getAllConnectionsOfPoint(selectedShape.connections));
+                                selectedShape.connections.push(...getAllConnectionsOfPoint(shape.connections));
+
+                                let connectionsOfSelectedShape: Rect[] = getAllConnectionsOfPoint(selectedShape.connections);
+                                let connectionsOfShape: Rect[] = getAllConnectionsOfPoint(shape.connections);
+
+                                
+
+                                shape.connections = Array.from(new Set(shape.connections));
+                                selectedShape.connections = Array.from(new Set(selectedShape.connections));
+
+                                //shape.connections.splice(shape.connections.indexOf(shape, 1));
+                                //selectedShape.connections.splice(selectedShape.connections.indexOf(selectedShape), 1);
+                            }
+
+                            if(selectedShape instanceof Point && shape instanceof RectPnt) {
+                                shape.connection_above.push(...getAllConnectionsOfPoint(selectedShape.connections));
+                                selectedShape.connections.push(selectedShape);
+                            }
+
                             if(selectedShape instanceof RectPnt && shape instanceof RectPnt) {
                                 shape.connection_above.push(selectedShape);
                                 selectedShape.connection_below.push(shape);
