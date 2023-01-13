@@ -46,6 +46,32 @@ class Canvas {
         });
         return result;
     }
+    getAllConnectionsAboveOfPoint(connections) {
+        let allNestings = [];
+        for (let i = 0; i < connections.length; i++) {
+            let connection_i = connections[i];
+            if (connection_i instanceof RectPnt) {
+                allNestings.push(connection_i);
+            }
+            else if (connection_i instanceof Point) {
+                allNestings.push(...this.getAllConnectionsAboveOfPoint(connection_i.connection_above));
+            }
+        }
+        return allNestings;
+    }
+    getAllConnectionsBelowOfPoint(connections) {
+        let allNestings = [];
+        for (let i = 0; i < connections.length; i++) {
+            let connection_i = connections[i];
+            if (connection_i instanceof RectPnt) {
+                allNestings.push(connection_i);
+            }
+            else if (connection_i instanceof Point) {
+                allNestings.push(...this.getAllConnectionsBelowOfPoint(connection_i.connection_below));
+            }
+        }
+        return allNestings;
+    }
     drawShape(shape) {
         if (shape instanceof RectPnt) {
             let text = [];
@@ -146,10 +172,6 @@ class Rect {
     }
 }
 class Point extends Rect {
-    constructor() {
-        super(...arguments);
-        this.connections = [];
-    }
 }
 class RectPnt extends Rect {
     constructor(posX = 100, posY = 100, width = 100, height = 100, color = Colors.USER) {
@@ -307,35 +329,37 @@ canvas.canvas.addEventListener('mouseup', function (ev) {
                         if (selectedShape instanceof Rect) {
                             shape.linesTo.push(lastElemInArray);
                             selectedShape.linesFrom.push(lastElemInArray);
-                            function getAllConnectionsOfPoint(connections) {
-                                let allNestings = [];
-                                for (let i = 0; i < connections.length; i++) {
-                                    let connection_i = connections[i];
-                                    if (connection_i instanceof RectPnt) {
-                                        allNestings.push(connection_i);
-                                    }
-                                    else if (connection_i instanceof Point) {
-                                        allNestings.push(...getAllConnectionsOfPoint(connection_i.connections));
-                                    }
-                                }
-                                return allNestings;
-                            }
                             if (selectedShape instanceof RectPnt && shape instanceof Point) {
-                                shape.connections.push(selectedShape);
-                                selectedShape.connection_below.push(...getAllConnectionsOfPoint(shape.connections));
-                                selectedShape.connection_below.splice(selectedShape.connection_below.indexOf(selectedShape), 1);
+                                shape.connection_above.push(selectedShape);
+                                selectedShape.connection_below.push(...canvas.getAllConnectionsBelowOfPoint(shape.connection_below));
+                                canvas.getAllConnectionsBelowOfPoint(shape.connection_below).forEach(rect => {
+                                    if (selectedShape instanceof Rect) {
+                                        rect.connection_above.push(selectedShape);
+                                    }
+                                });
                             }
                             if (selectedShape instanceof Point && shape instanceof Point) {
-                                shape.connections.push(...getAllConnectionsOfPoint(selectedShape.connections));
-                                selectedShape.connections.push(...getAllConnectionsOfPoint(shape.connections));
-                                let connectionsOfSelectedShape = getAllConnectionsOfPoint(selectedShape.connections);
-                                let connectionsOfShape = getAllConnectionsOfPoint(shape.connections);
-                                shape.connections = Array.from(new Set(shape.connections));
-                                selectedShape.connections = Array.from(new Set(selectedShape.connections));
+                                canvas.getAllConnectionsAboveOfPoint(selectedShape.connection_above).forEach(con => {
+                                    if (shape instanceof Point) {
+                                        shape.connection_above.push(con);
+                                        con.connection_below.push(...canvas.getAllConnectionsBelowOfPoint(shape.connection_below));
+                                    }
+                                });
+                                canvas.getAllConnectionsBelowOfPoint(shape.connection_below).forEach(con => {
+                                    if (selectedShape instanceof Point) {
+                                        selectedShape.connection_below.push(con);
+                                        con.connection_above.push(...canvas.getAllConnectionsAboveOfPoint(selectedShape.connection_above));
+                                    }
+                                });
                             }
                             if (selectedShape instanceof Point && shape instanceof RectPnt) {
-                                shape.connection_above.push(...getAllConnectionsOfPoint(selectedShape.connections));
-                                selectedShape.connections.push(selectedShape);
+                                selectedShape.connection_below.push(shape);
+                                shape.connection_above.push(...canvas.getAllConnectionsAboveOfPoint(selectedShape.connection_above));
+                                canvas.getAllConnectionsAboveOfPoint(selectedShape.connection_above).forEach(rect => {
+                                    if (shape instanceof Rect) {
+                                        rect.connection_below.push(shape);
+                                    }
+                                });
                             }
                             if (selectedShape instanceof RectPnt && shape instanceof RectPnt) {
                                 shape.connection_above.push(selectedShape);
@@ -452,6 +476,9 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
                 shape.linesTo.forEach(line => {
                     allShapes.splice(allShapes.indexOf(line), 1);
                 });
+                shape.connection_above.forEach(con => {
+                    con.connection_below.splice(con.connection_below.indexOf(shape), 1);
+                });
             }
         }
         if (shape instanceof Line && !rectWasDeleted) {
@@ -459,6 +486,8 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
                 allShapes.splice(allShapes.indexOf(shape), 1);
                 let jsca;
                 let jscb;
+                let connectionOfPointFirst;
+                let connectionOfPointSecond;
                 allShapes.forEach(jshape => {
                     if (jshape instanceof RectPnt) {
                         jshape.linesFrom.forEach(jline => {
@@ -477,6 +506,7 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
                     if (jshape instanceof Rect) {
                         jshape.linesFrom.forEach(jline => {
                             if (jline == shape) {
+                                connectionOfPointFirst = jshape;
                                 jshape.linesFrom.splice(jshape.linesFrom.indexOf(jline), 1);
                             }
                         });
@@ -486,13 +516,45 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
                     if (jshape instanceof Rect) {
                         jshape.linesTo.forEach(jline => {
                             if (jline == shape) {
+                                connectionOfPointSecond = jshape;
                                 jshape.linesTo.splice(jshape.linesTo.indexOf(jline), 1);
                             }
                         });
                     }
                 });
-                jsca.connection_below.splice(jsca.connection_below.indexOf(jscb), 1);
-                jscb.connection_above.splice(jscb.connection_above.indexOf(jsca), 1);
+                try {
+                    jsca.connection_below.splice(jsca.connection_below.indexOf(jscb), 1);
+                    jscb.connection_above.splice(jscb.connection_above.indexOf(jsca), 1);
+                }
+                catch (e) {
+                    console.log(e);
+                }
+                if (connectionOfPointFirst instanceof RectPnt && connectionOfPointSecond instanceof RectPnt) {
+                    console.log(connectionOfPointFirst);
+                    console.log(connectionOfPointSecond);
+                    connectionOfPointFirst.connection_below.splice(connectionOfPointFirst.connection_below.indexOf(connectionOfPointSecond), 1);
+                    connectionOfPointSecond.connection_above.splice(connectionOfPointSecond.connection_above.indexOf(connectionOfPointFirst), 1);
+                }
+                if (connectionOfPointFirst instanceof RectPnt && connectionOfPointSecond instanceof Point) {
+                    canvas.getAllConnectionsBelowOfPoint(connectionOfPointSecond.connection_below).forEach(rect => {
+                        connectionOfPointFirst.connection_below.splice(connectionOfPointFirst.connection_below.indexOf(rect), 1);
+                        rect.connection_above.splice(rect.connection_above.indexOf(connectionOfPointFirst), 1);
+                    });
+                }
+                if (connectionOfPointFirst instanceof Point && connectionOfPointSecond instanceof RectPnt) {
+                    canvas.getAllConnectionsAboveOfPoint(connectionOfPointFirst.connection_above).forEach(rect => {
+                        connectionOfPointSecond.connection_above.splice(connectionOfPointSecond.connection_above.indexOf(rect), 1);
+                        rect.connection_below.splice(rect.connection_below.indexOf(connectionOfPointSecond), 1);
+                    });
+                }
+                if (connectionOfPointFirst instanceof Point && connectionOfPointSecond instanceof Point) {
+                    canvas.getAllConnectionsAboveOfPoint(connectionOfPointFirst.connection_above).forEach(first_rect => {
+                        canvas.getAllConnectionsBelowOfPoint(connectionOfPointSecond.connection_below).forEach(second_rect => {
+                            first_rect.connection_below.splice(first_rect.connection_below.indexOf(second_rect));
+                            second_rect.connection_above.splice(second_rect.connection_above.indexOf(first_rect));
+                        });
+                    });
+                }
             }
         }
     });
@@ -513,28 +575,6 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
                 shape.linesFrom.forEach(lt => {
                     if (lt == line) {
                         shape.linesFrom.splice(shape.linesFrom.indexOf(lt), 1);
-                    }
-                });
-            }
-        });
-    });
-    sca.forEach(rect => {
-        allShapes.forEach(shape => {
-            if (shape instanceof Rect) {
-                shape.connection_below.forEach(ca => {
-                    if (shape == rect && ca == deletedShape) {
-                        shape.connection_below.splice(shape.connection_below.indexOf(ca), 1);
-                    }
-                });
-            }
-        });
-    });
-    scb.forEach(rect => {
-        allShapes.forEach(shape => {
-            if (shape instanceof Rect) {
-                shape.connection_above.forEach(cb => {
-                    if (shape == rect && cb == deletedShape) {
-                        shape.connection_above.splice(shape.connection_above.indexOf(cb), 1);
                     }
                 });
             }
