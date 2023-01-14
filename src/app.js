@@ -25,6 +25,8 @@ let generalDiffMouseY = 0;
 let clearRectX = 0;
 let clearRectY = 0;
 let selectedShape;
+let gradient = null;
+let lineHover = null;
 class Canvas {
     constructor() {
         let canvas = document.getElementById('canvas');
@@ -117,7 +119,7 @@ class Canvas {
             this.context.fillRect(shape.posX, shape.posY, shape.width, shape.height);
         }
         else if (shape instanceof Line) {
-            this.context.strokeStyle = String(shape.color);
+            this.context.strokeStyle = gradient && (lineHover === shape) ? gradient : String(shape.color);
             this.context.beginPath();
             this.context.lineWidth = 3;
             this.context.moveTo(shape.fromPosX, shape.fromPosY);
@@ -273,7 +275,7 @@ class CallbackButton extends TextAlignCenter {
     }
 }
 class Line {
-    constructor(fromPosX, fromPosY, toPosX, toPosY, color = Colors.MAIN) {
+    constructor(fromPosX, fromPosY, toPosX, toPosY, color = Colors.LOGIC) {
         this.color = Colors.MAIN;
         this.movable = false;
         this.clickdownable = false;
@@ -420,6 +422,25 @@ canvas.canvas.addEventListener('mousedown', function (ev) {
     });
 });
 canvas.canvas.addEventListener('mousemove', function (ev) {
+    for (let i = 0; i < allShapes.length; i++) {
+        let shape = allShapes[i];
+        if (shape instanceof Line) {
+            if (canvas.context.isPointInStroke(shape.path2d, ev.offsetX, ev.offsetY)) {
+                let grad = canvas.context.createLinearGradient(shape.fromPosX, shape.fromPosY, shape.toPosX, shape.toPosY);
+                grad.addColorStop(0, Colors.MAIN);
+                grad.addColorStop(1, Colors.USER);
+                gradient = grad;
+                lineHover = shape;
+                console.log(gradient);
+                break;
+            }
+            else {
+                gradient = null;
+                lineHover = null;
+                console.log(gradient);
+            }
+        }
+    }
     if (mouseOnRectPnt) {
         let lastElemInArray = allShapes[allShapes.length - 1];
         if (lastElemInArray instanceof Line) {

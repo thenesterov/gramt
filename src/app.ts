@@ -39,6 +39,9 @@ let clearRectY: number = 0;
 
 let selectedShape: Shape | null;
 
+let gradient: CanvasGradient | null = null;
+let lineHover: Line | null = null;
+
 class Canvas {
     public canvas: HTMLCanvasElement;
     public context: CanvasRenderingContext2D;
@@ -156,7 +159,7 @@ class Canvas {
             this.context.fillRect(shape.posX, shape.posY, shape.width, shape.height);
         }
         else if(shape instanceof Line) {
-            this.context.strokeStyle = String(shape.color);
+            this.context.strokeStyle = gradient && (lineHover === shape) ? gradient : String(shape.color);
             this.context.beginPath();
             this.context.lineWidth = 3;
             this.context.moveTo(shape.fromPosX, shape.fromPosY);
@@ -380,7 +383,7 @@ class Line implements Shape {
 
     public path2d: Path2D = new Path2D();
 
-    constructor(fromPosX: number, fromPosY: number, toPosX: number, toPosY: number, color: Colors = Colors.MAIN) {
+    constructor(fromPosX: number, fromPosY: number, toPosX: number, toPosY: number, color: Colors = Colors.LOGIC) {
         this.fromPosX = fromPosX;
         this.fromPosY = fromPosY;
         this.toPosX = toPosX;
@@ -565,6 +568,28 @@ canvas.canvas.addEventListener('mousedown', function(ev: MouseEvent) {
 })
 
 canvas.canvas.addEventListener('mousemove', function(ev: MouseEvent) {
+    for(let i = 0; i < allShapes.length; i++) {
+        let shape = allShapes[i];
+
+        if(shape instanceof Line) {
+            if(canvas.context.isPointInStroke(shape.path2d, ev.offsetX, ev.offsetY)) {
+                let grad = canvas.context.createLinearGradient(shape.fromPosX, shape.fromPosY, shape.toPosX, shape.toPosY);
+                grad.addColorStop(0, Colors.MAIN);
+                grad.addColorStop(1, Colors.USER);
+
+                gradient = grad;
+                lineHover = shape;
+                console.log(gradient)
+                break;
+                
+            } else {
+                gradient = null;
+                lineHover = null;
+                console.log(gradient)
+            }
+        }
+    }
+
     if(mouseOnRectPnt) {
         let lastElemInArray = allShapes[allShapes.length - 1];
         if(lastElemInArray instanceof Line) {
