@@ -114,10 +114,6 @@ class Canvas {
                 }
             }
         }
-        else if (shape instanceof Point) {
-            this.context.fillStyle = String(shape.color);
-            this.context.fillRect(shape.posX, shape.posY, shape.width, shape.height);
-        }
         else if (shape instanceof Line) {
             this.context.strokeStyle = gradient && (lineHover === shape) ? gradient : String(shape.color);
             this.context.beginPath();
@@ -331,38 +327,6 @@ canvas.canvas.addEventListener('mouseup', function (ev) {
                         if (selectedShape instanceof Rect) {
                             shape.linesTo.push(lastElemInArray);
                             selectedShape.linesFrom.push(lastElemInArray);
-                            if (selectedShape instanceof RectPnt && shape instanceof Point) {
-                                shape.connection_above.push(selectedShape);
-                                selectedShape.connection_below.push(...canvas.getAllConnectionsBelowOfPoint(shape.connection_below));
-                                canvas.getAllConnectionsBelowOfPoint(shape.connection_below).forEach(rect => {
-                                    if (selectedShape instanceof Rect) {
-                                        rect.connection_above.push(selectedShape);
-                                    }
-                                });
-                            }
-                            if (selectedShape instanceof Point && shape instanceof Point) {
-                                canvas.getAllConnectionsAboveOfPoint(selectedShape.connection_above).forEach(con => {
-                                    if (shape instanceof Point) {
-                                        shape.connection_above.push(con);
-                                        con.connection_below.push(...canvas.getAllConnectionsBelowOfPoint(shape.connection_below));
-                                    }
-                                });
-                                canvas.getAllConnectionsBelowOfPoint(shape.connection_below).forEach(con => {
-                                    if (selectedShape instanceof Point) {
-                                        selectedShape.connection_below.push(con);
-                                        con.connection_above.push(...canvas.getAllConnectionsAboveOfPoint(selectedShape.connection_above));
-                                    }
-                                });
-                            }
-                            if (selectedShape instanceof Point && shape instanceof RectPnt) {
-                                selectedShape.connection_below.push(shape);
-                                shape.connection_above.push(...canvas.getAllConnectionsAboveOfPoint(selectedShape.connection_above));
-                                canvas.getAllConnectionsAboveOfPoint(selectedShape.connection_above).forEach(rect => {
-                                    if (shape instanceof Rect) {
-                                        rect.connection_below.push(shape);
-                                    }
-                                });
-                            }
                             if (selectedShape instanceof RectPnt && shape instanceof RectPnt) {
                                 shape.connection_above.push(selectedShape);
                                 selectedShape.connection_below.push(shape);
@@ -406,7 +370,7 @@ canvas.canvas.addEventListener('mousedown', function (ev) {
             if (!mouseIsDbl) {
                 selectedShape = shape;
             }
-            if (shape instanceof RectPnt || shape instanceof Point) {
+            if (shape instanceof RectPnt) {
                 diffMouseX = ev.offsetX - shape.posX;
                 diffMouseY = ev.offsetY - shape.posY;
             }
@@ -431,13 +395,11 @@ canvas.canvas.addEventListener('mousemove', function (ev) {
                 grad.addColorStop(1, Colors.USER);
                 gradient = grad;
                 lineHover = shape;
-                console.log(gradient);
                 break;
             }
             else {
                 gradient = null;
                 lineHover = null;
-                console.log(gradient);
             }
         }
     }
@@ -454,7 +416,7 @@ canvas.canvas.addEventListener('mousemove', function (ev) {
         }
     }
     if (mouseIsDown && !mouseOnPoint) {
-        if (selectedShape instanceof RectPnt || selectedShape instanceof Point) {
+        if (selectedShape instanceof RectPnt) {
             selectedShape.move(selectedShape, ev);
             if (selectedShape instanceof RectPnt) {
                 selectedShape.point.move(selectedShape, ev);
@@ -477,8 +439,6 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
     let rectWasDeleted = false;
     let slf = [];
     let slt = [];
-    let sca = [];
-    let scb = [];
     let deletedShape;
     allShapes.forEach(shape => {
         if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.contextmenuable) {
@@ -487,8 +447,6 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
             if (shape instanceof Rect) {
                 slf = shape.linesFrom;
                 slt = shape.linesTo;
-                sca = shape.connection_above;
-                scb = shape.connection_below;
                 deletedShape = shape;
                 allShapes.splice(allShapes.indexOf(shape), 1);
                 shape.linesFrom.forEach(line => {
@@ -496,9 +454,6 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
                 });
                 shape.linesTo.forEach(line => {
                     allShapes.splice(allShapes.indexOf(line), 1);
-                });
-                shape.connection_above.forEach(con => {
-                    con.connection_below.splice(con.connection_below.indexOf(shape), 1);
                 });
             }
         }
@@ -550,32 +505,6 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
                 catch (e) {
                     console.log(e);
                 }
-                if (connectionOfPointFirst instanceof RectPnt && connectionOfPointSecond instanceof RectPnt) {
-                    console.log(connectionOfPointFirst);
-                    console.log(connectionOfPointSecond);
-                    connectionOfPointFirst.connection_below.splice(connectionOfPointFirst.connection_below.indexOf(connectionOfPointSecond), 1);
-                    connectionOfPointSecond.connection_above.splice(connectionOfPointSecond.connection_above.indexOf(connectionOfPointFirst), 1);
-                }
-                if (connectionOfPointFirst instanceof RectPnt && connectionOfPointSecond instanceof Point) {
-                    canvas.getAllConnectionsBelowOfPoint(connectionOfPointSecond.connection_below).forEach(rect => {
-                        connectionOfPointFirst.connection_below.splice(connectionOfPointFirst.connection_below.indexOf(rect), 1);
-                        rect.connection_above.splice(rect.connection_above.indexOf(connectionOfPointFirst), 1);
-                    });
-                }
-                if (connectionOfPointFirst instanceof Point && connectionOfPointSecond instanceof RectPnt) {
-                    canvas.getAllConnectionsAboveOfPoint(connectionOfPointFirst.connection_above).forEach(rect => {
-                        connectionOfPointSecond.connection_above.splice(connectionOfPointSecond.connection_above.indexOf(rect), 1);
-                        rect.connection_below.splice(rect.connection_below.indexOf(connectionOfPointSecond), 1);
-                    });
-                }
-                if (connectionOfPointFirst instanceof Point && connectionOfPointSecond instanceof Point) {
-                    canvas.getAllConnectionsAboveOfPoint(connectionOfPointFirst.connection_above).forEach(first_rect => {
-                        canvas.getAllConnectionsBelowOfPoint(connectionOfPointSecond.connection_below).forEach(second_rect => {
-                            first_rect.connection_below.splice(first_rect.connection_below.indexOf(second_rect));
-                            second_rect.connection_above.splice(second_rect.connection_above.indexOf(first_rect));
-                        });
-                    });
-                }
             }
         }
     });
@@ -609,20 +538,6 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
     }
 });
 canvas.canvas.addEventListener('dblclick', function (ev) {
-    allShapes.forEach(shape => {
-        if (shape instanceof Point) {
-            if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.dblclickable) {
-                if (shape instanceof Point) {
-                    mouseIsDown = true;
-                    mouseOnPoint = true;
-                    mouseIsDbl = true;
-                    selectedShape = shape;
-                    allShapes.push(new Line(shape.posX + shape.width / 2, shape.posY + shape.height / 2, ev.offsetX - generalDiffMouseX, ev.offsetY - generalDiffMouseY));
-                    lineIsActive = true;
-                }
-            }
-        }
-    });
 });
 let countAllShapes = 0;
 function renderCanvas() {
@@ -644,27 +559,28 @@ function renderCanvas() {
     window.requestAnimationFrame(renderCanvas);
 }
 window.requestAnimationFrame(renderCanvas);
-function addState() {
-    canvas.addShape(new State(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
-}
-function addUser() {
-    canvas.addShape(new User(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
-}
-function addLogic() {
-    canvas.addShape(new Logic(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
-}
-function addBot() {
-    canvas.addShape(new Bot(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
-}
-function addPoint() {
-    canvas.addShape(new Point(100 - generalDiffMouseX, 100 - generalDiffMouseY, 10, 10, Colors.MAIN));
-}
-function addKeyBoard() {
-    canvas.addShape(new KeyBoard(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
-}
-function addReplyButton() {
-    canvas.addShape(new ReplyButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
-}
-function addCallbackButton() {
-    canvas.addShape(new CallbackButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+function add(shape) {
+    switch (shape) {
+        case 'state':
+            canvas.addShape(new State(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+            break;
+        case 'user':
+            canvas.addShape(new User(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+            break;
+        case 'logic':
+            canvas.addShape(new Logic(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+            break;
+        case 'bot':
+            canvas.addShape(new Bot(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+            break;
+        case 'kb':
+            canvas.addShape(new KeyBoard(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+            break;
+        case 'rb':
+            canvas.addShape(new ReplyButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+            break;
+        case 'cb':
+            canvas.addShape(new CallbackButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+            break;
+    }
 }
