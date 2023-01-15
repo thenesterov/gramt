@@ -1,13 +1,13 @@
 class Colors {
 }
-Colors.MAIN = '#65bbf4';
-Colors.STATE = '#1f2b38';
-Colors.USER = '#2b5378';
-Colors.LOGIC = '#768c9e';
-Colors.BOT = '#182533';
-Colors.KB = '#1e2c3a';
-Colors.RB = '#b580e2';
-Colors.CB = '#7595ff';
+Colors.MAIN = "#65bbf4";
+Colors.STATE = "#1f2b38";
+Colors.USER = "#2b5378";
+Colors.LOGIC = "#768c9e";
+Colors.BOT = "#182533";
+Colors.KB = "#1e2c3a";
+Colors.RB = "#b580e2";
+Colors.CB = "#7595ff";
 let allShapes = [];
 let mouseIsDown = false;
 let mouseIsCtxmenu = false;
@@ -29,10 +29,10 @@ let gradient = null;
 let lineHover = null;
 class Canvas {
     constructor() {
-        let canvas = document.getElementById('canvas');
-        canvas.width = document.getElementsByClassName('right')[0].offsetWidth;
+        let canvas = document.getElementById("canvas");
+        canvas.width = document.getElementsByClassName("right")[0].offsetWidth;
         canvas.height = window.innerHeight - 10;
-        let context = canvas.getContext('2d');
+        let context = canvas.getContext("2d");
         this.canvas = canvas;
         this.context = context;
     }
@@ -41,7 +41,7 @@ class Canvas {
     }
     include(array, element) {
         let result = false;
-        array.forEach(elem => {
+        array.forEach((elem) => {
             if (elem == element) {
                 result = true;
             }
@@ -79,23 +79,23 @@ class Canvas {
             let text = [];
             for (let i = 0; i < shape.text.length; i++) {
                 text.push(shape.text[i]);
-                let lastLine = text.join('').split('\n')[text.join('').split('\n').length - 1];
+                let lastLine = text.join("").split("\n")[text.join("").split("\n").length - 1];
                 if (this.context.measureText(lastLine).width > shape.width - 20) {
-                    let words = text.join('').split(' ');
+                    let words = text.join("").split(" ");
                     let new_text = [];
                     for (let j = 0; j < words.length; j++) {
                         if (j != words.length - 1) {
                             new_text.push(words[j] + " ");
                         }
                         else {
-                            new_text.push('\n');
+                            new_text.push("\n");
                             new_text.push(words[j]);
                         }
                     }
                     text = new_text;
                 }
             }
-            text = text.join('').split('\n');
+            text = text.join("").split("\n");
             shape.setText(text);
             this.context.fillStyle = String(shape.color);
             this.context.fillRect(shape.posX, shape.posY, shape.width, shape.height);
@@ -105,17 +105,19 @@ class Canvas {
             this.context.fillStyle = "#ffffff";
             if (shape instanceof TextAlignStart) {
                 for (let i = 0; i < text.length; i++) {
-                    this.context.fillText(text[i], shape.posX + 10, shape.posY + (i * 17) + 20);
+                    this.context.fillText(text[i], shape.posX + 10, shape.posY + i * 17 + 20);
                 }
             }
             else if (shape instanceof TextAlignCenter) {
                 for (let i = 0; i < text.length; i++) {
-                    this.context.fillText(text[i], shape.posX + ((shape.width - this.context.measureText(text[i]).width) / 2), shape.posY + (i * 17) + 20);
+                    this.context.fillText(text[i], shape.posX +
+                        (shape.width - this.context.measureText(text[i]).width) / 2, shape.posY + i * 17 + 20);
                 }
             }
         }
         else if (shape instanceof Line) {
-            this.context.strokeStyle = gradient && (lineHover === shape) ? gradient : String(shape.color);
+            this.context.strokeStyle =
+                gradient && lineHover === shape ? gradient : String(shape.color);
             this.context.beginPath();
             this.context.lineWidth = 3;
             this.context.moveTo(shape.fromPosX, shape.fromPosY);
@@ -137,7 +139,7 @@ class Rect {
         this.clickdownable = true;
         this.dblclickable = true;
         this.contextmenuable = true;
-        this.path2d = new Path2D;
+        this.path2d = new Path2D();
         this.connection_above = [];
         this.connection_below = [];
         this.linesFrom = [];
@@ -154,17 +156,17 @@ class Rect {
         shape.posY = ev.offsetY - diffMouseY;
         shape.path2d = new Path2D();
         shape.path2d.rect(shape.posX, shape.posY, shape.width, shape.height);
-        this.linesFrom.forEach(line => {
+        this.linesFrom.forEach((line) => {
             if (shape instanceof Point) {
                 line.move(this.posX + this.width / 2, this.posY + this.height / 2, null, null);
             }
             else if (shape instanceof RectPnt) {
-                let newPosX = shape.point.posX + (shape.width / 2);
-                let newPosY = shape.point.posY + (shape.point.height / 2);
+                let newPosX = shape.point.posX + shape.width / 2;
+                let newPosY = shape.point.posY + shape.point.height / 2;
                 line.move(newPosX, newPosY, null, null);
             }
         });
-        this.linesTo.forEach(line => {
+        this.linesTo.forEach((line) => {
             line.move(null, null, this.posX + this.width / 2, this.posY + this.height / 2);
         });
     }
@@ -183,7 +185,7 @@ class RectPnt extends Rect {
         this.point.posY = this.posY + this.height;
     }
     setText(text) {
-        this.text = text.join('');
+        this.text = text.join("");
         let diffHeight = text.length * 17 + 20;
         this.height = diffHeight;
         this.point.posY = this.point.posY + diffHeight - this.height;
@@ -202,17 +204,17 @@ class RectPnt extends Rect {
         this.point.posY = this.posY + this.height;
         this.point.path2d = new Path2D();
         this.point.path2d.rect(this.point.posX, this.point.posY, this.point.width, this.point.height);
-        this.linesFrom.forEach(line => {
+        this.linesFrom.forEach((line) => {
             if (shape instanceof Point) {
                 line.move(this.posX + this.width / 2, this.posY + this.height / 2, null, null);
             }
             else if (shape instanceof RectPnt) {
-                let newPosX = this.point.posX + (this.point.width / 2);
-                let newPosY = this.point.posY + (this.point.height / 2);
+                let newPosX = this.point.posX + this.point.width / 2;
+                let newPosY = this.point.posY + this.point.height / 2;
                 line.move(newPosX, newPosY, null, null);
             }
         });
-        this.linesTo.forEach(line => {
+        this.linesTo.forEach((line) => {
             line.move(null, null, this.posX + this.width / 2, this.posY + this.height / 2);
         });
     }
@@ -225,49 +227,49 @@ class State extends TextAlignCenter {
     constructor() {
         super(...arguments);
         this.color = Colors.STATE;
-        this.text = 'STATE';
+        this.text = "STATE";
     }
 }
 class User extends TextAlignStart {
     constructor() {
         super(...arguments);
         this.color = Colors.USER;
-        this.text = 'USER';
+        this.text = "USER";
     }
 }
 class Logic extends TextAlignCenter {
     constructor() {
         super(...arguments);
         this.color = Colors.LOGIC;
-        this.text = 'LOGIC';
+        this.text = "LOGIC";
     }
 }
 class Bot extends TextAlignStart {
     constructor() {
         super(...arguments);
         this.color = Colors.BOT;
-        this.text = 'BOT';
+        this.text = "BOT";
     }
 }
 class KeyBoard extends TextAlignCenter {
     constructor() {
         super(...arguments);
         this.color = Colors.KB;
-        this.text = 'KB';
+        this.text = "KB";
     }
 }
 class ReplyButton extends TextAlignCenter {
     constructor() {
         super(...arguments);
         this.color = Colors.RB;
-        this.text = 'RB';
+        this.text = "RB";
     }
 }
 class CallbackButton extends TextAlignCenter {
     constructor() {
         super(...arguments);
         this.color = Colors.CB;
-        this.text = 'CB';
+        this.text = "CB";
     }
 }
 class Line {
@@ -309,25 +311,26 @@ class Line {
     }
 }
 const canvas = new Canvas();
-canvas.canvas.addEventListener('click', function (ev) {
+canvas.canvas.addEventListener("click", function (ev) {
     console.log(`click ${ev.offsetX}, ${ev.offsetY}`);
 });
-canvas.canvas.addEventListener('mouseup', function (ev) {
+canvas.canvas.addEventListener("mouseup", function (ev) {
     let emptyMouseUp = true;
     let lastElemInArray = allShapes[allShapes.length - 1];
-    allShapes.forEach(shape => {
+    allShapes.forEach((shape) => {
         if (!(shape instanceof Line)) {
-            if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)
-                && (mouseOnRectPnt || mouseOnPoint)
-                && lineIsActive
-                && shape != selectedShape) {
-                if (shape instanceof RectPnt || shape instanceof Point) {
+            if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) &&
+                (mouseOnRectPnt || mouseOnPoint) &&
+                lineIsActive &&
+                shape != selectedShape) {
+                if (shape instanceof RectPnt) {
                     if (lastElemInArray instanceof Line) {
                         lastElemInArray.move(null, null, ev.offsetX, ev.offsetY, shape);
                         if (selectedShape instanceof Rect) {
                             shape.linesTo.push(lastElemInArray);
                             selectedShape.linesFrom.push(lastElemInArray);
-                            if (selectedShape instanceof RectPnt && shape instanceof RectPnt) {
+                            if (selectedShape instanceof RectPnt &&
+                                shape instanceof RectPnt) {
                                 shape.connection_above.push(selectedShape);
                                 selectedShape.connection_below.push(shape);
                             }
@@ -336,9 +339,9 @@ canvas.canvas.addEventListener('mouseup', function (ev) {
                     emptyMouseUp = false;
                 }
             }
-            else if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)
-                && (mouseOnRectPnt || mouseOnPoint)
-                && lineIsActive) {
+            else if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) &&
+                (mouseOnRectPnt || mouseOnPoint) &&
+                lineIsActive) {
                 if (shape instanceof Point) {
                     if (lastElemInArray instanceof Line) {
                         lastElemInArray.move(null, null, ev.offsetX, ev.offsetY, shape);
@@ -363,9 +366,10 @@ canvas.canvas.addEventListener('mouseup', function (ev) {
     ctxmenuOnShape = false;
     selectedShape = null;
 });
-canvas.canvas.addEventListener('mousedown', function (ev) {
-    allShapes.forEach(shape => {
-        if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.clickdownable) {
+canvas.canvas.addEventListener("mousedown", function (ev) {
+    allShapes.forEach((shape) => {
+        if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) &&
+            shape.clickdownable) {
             mouseIsDown = true;
             if (!mouseIsDbl) {
                 selectedShape = shape;
@@ -376,7 +380,8 @@ canvas.canvas.addEventListener('mousedown', function (ev) {
             }
         }
         else if (shape instanceof RectPnt) {
-            if (canvas.context.isPointInPath(shape.point.path2d, ev.offsetX, ev.offsetY) && shape.clickdownable) {
+            if (canvas.context.isPointInPath(shape.point.path2d, ev.offsetX, ev.offsetY) &&
+                shape.clickdownable) {
                 mouseOnRectPnt = true;
                 selectedShape = shape;
                 allShapes.push(new Line(shape.point.posX + shape.point.width / 2, shape.point.posY + shape.point.height / 2, ev.offsetX - generalDiffMouseX, ev.offsetY - generalDiffMouseY));
@@ -385,7 +390,7 @@ canvas.canvas.addEventListener('mousedown', function (ev) {
         }
     });
 });
-canvas.canvas.addEventListener('mousemove', function (ev) {
+canvas.canvas.addEventListener("mousemove", function (ev) {
     for (let i = 0; i < allShapes.length; i++) {
         let shape = allShapes[i];
         if (shape instanceof Line) {
@@ -424,8 +429,8 @@ canvas.canvas.addEventListener('mousemove', function (ev) {
         }
     }
     if (mouseIsDown && !ctxmenuOnShape && mouseIsCtxmenu) {
-        let diffMouseXMove = (mouseXMove - ev.offsetX) * (-1);
-        let diffMouseYMove = (mouseYMove - ev.offsetY) * (-1);
+        let diffMouseXMove = (mouseXMove - ev.offsetX) * -1;
+        let diffMouseYMove = (mouseYMove - ev.offsetY) * -1;
         generalDiffMouseX += diffMouseXMove;
         generalDiffMouseY += diffMouseYMove;
         canvas.context.translate(diffMouseXMove, diffMouseYMove);
@@ -435,13 +440,14 @@ canvas.canvas.addEventListener('mousemove', function (ev) {
         clearRectY -= diffMouseYMove;
     }
 });
-canvas.canvas.addEventListener('contextmenu', function (ev) {
+canvas.canvas.addEventListener("contextmenu", function (ev) {
     let rectWasDeleted = false;
     let slf = [];
     let slt = [];
     let deletedShape;
-    allShapes.forEach(shape => {
-        if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) && shape.contextmenuable) {
+    allShapes.forEach((shape) => {
+        if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) &&
+            shape.contextmenuable) {
             ctxmenuOnShape = true;
             rectWasDeleted = true;
             if (shape instanceof Rect) {
@@ -449,69 +455,54 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
                 slt = shape.linesTo;
                 deletedShape = shape;
                 allShapes.splice(allShapes.indexOf(shape), 1);
-                shape.linesFrom.forEach(line => {
+                shape.linesFrom.forEach((line) => {
                     allShapes.splice(allShapes.indexOf(line), 1);
                 });
-                shape.linesTo.forEach(line => {
+                shape.linesTo.forEach((line) => {
                     allShapes.splice(allShapes.indexOf(line), 1);
+                });
+                shape.connection_above.forEach((jshape) => {
+                    jshape.connection_below.splice(jshape.connection_below.indexOf(shape), 1);
+                });
+                shape.connection_below.forEach((jshape) => {
+                    jshape.connection_above.splice(jshape.connection_above.indexOf(shape), 1);
                 });
             }
         }
         if (shape instanceof Line && !rectWasDeleted) {
             if (canvas.context.isPointInStroke(shape.path2d, ev.offsetX, ev.offsetY)) {
                 allShapes.splice(allShapes.indexOf(shape), 1);
-                let jsca;
-                let jscb;
-                let connectionOfPointFirst;
-                let connectionOfPointSecond;
-                allShapes.forEach(jshape => {
-                    if (jshape instanceof RectPnt) {
-                        jshape.linesFrom.forEach(jline => {
-                            if (jline == shape) {
-                                jsca = jshape;
-                            }
-                        });
-                        jshape.linesTo.forEach(jline => {
-                            if (jline == shape) {
-                                jscb = jshape;
-                            }
-                        });
-                    }
-                });
-                allShapes.forEach(jshape => {
+                let firstShape;
+                let secondShape;
+                allShapes.forEach((jshape) => {
                     if (jshape instanceof Rect) {
-                        jshape.linesFrom.forEach(jline => {
+                        jshape.linesFrom.forEach((jline) => {
                             if (jline == shape) {
-                                connectionOfPointFirst = jshape;
+                                firstShape = jshape;
                                 jshape.linesFrom.splice(jshape.linesFrom.indexOf(jline), 1);
                             }
                         });
                     }
                 });
-                allShapes.forEach(jshape => {
+                allShapes.forEach((jshape) => {
                     if (jshape instanceof Rect) {
-                        jshape.linesTo.forEach(jline => {
+                        jshape.linesTo.forEach((jline) => {
                             if (jline == shape) {
-                                connectionOfPointSecond = jshape;
+                                secondShape = jshape;
                                 jshape.linesTo.splice(jshape.linesTo.indexOf(jline), 1);
                             }
                         });
                     }
                 });
-                try {
-                    jsca.connection_below.splice(jsca.connection_below.indexOf(jscb), 1);
-                    jscb.connection_above.splice(jscb.connection_above.indexOf(jsca), 1);
-                }
-                catch (e) {
-                    console.log(e);
-                }
+                firstShape.connection_below.splice(firstShape.connection_below.indexOf(secondShape), 1);
+                secondShape.connection_above.splice(secondShape.connection_above.indexOf(firstShape), 1);
             }
         }
     });
-    slf.forEach(line => {
-        allShapes.forEach(shape => {
+    slf.forEach((line) => {
+        allShapes.forEach((shape) => {
             if (shape instanceof Rect) {
-                shape.linesTo.forEach(lf => {
+                shape.linesTo.forEach((lf) => {
                     if (lf == line) {
                         shape.linesTo.splice(shape.linesTo.indexOf(lf), 1);
                     }
@@ -519,10 +510,10 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
             }
         });
     });
-    slt.forEach(line => {
-        allShapes.forEach(shape => {
+    slt.forEach((line) => {
+        allShapes.forEach((shape) => {
             if (shape instanceof Rect) {
-                shape.linesFrom.forEach(lt => {
+                shape.linesFrom.forEach((lt) => {
                     if (lt == line) {
                         shape.linesFrom.splice(shape.linesFrom.indexOf(lt), 1);
                     }
@@ -537,21 +528,20 @@ canvas.canvas.addEventListener('contextmenu', function (ev) {
         mouseYMove = ev.offsetY;
     }
 });
-canvas.canvas.addEventListener('dblclick', function (ev) {
-});
+canvas.canvas.addEventListener("dblclick", function (ev) { });
 let countAllShapes = 0;
 function renderCanvas() {
     canvas.context.clearRect(clearRectX, clearRectY, canvas.canvas.width, canvas.canvas.height);
     if (countAllShapes != allShapes.length) {
-        console.log('cb');
+        console.log("cb");
     }
     countAllShapes = allShapes.length;
-    allShapes.forEach(shape => {
+    allShapes.forEach((shape) => {
         if (shape instanceof Line) {
             canvas.drawShape(shape);
         }
     });
-    allShapes.forEach(shape => {
+    allShapes.forEach((shape) => {
         if (shape instanceof Rect) {
             canvas.drawShape(shape);
         }
@@ -561,25 +551,25 @@ function renderCanvas() {
 window.requestAnimationFrame(renderCanvas);
 function add(shape) {
     switch (shape) {
-        case 'state':
+        case "state":
             canvas.addShape(new State(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
             break;
-        case 'user':
+        case "user":
             canvas.addShape(new User(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
             break;
-        case 'logic':
+        case "logic":
             canvas.addShape(new Logic(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
             break;
-        case 'bot':
+        case "bot":
             canvas.addShape(new Bot(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
             break;
-        case 'kb':
+        case "kb":
             canvas.addShape(new KeyBoard(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
             break;
-        case 'rb':
+        case "rb":
             canvas.addShape(new ReplyButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
             break;
-        case 'cb':
+        case "cb":
             canvas.addShape(new CallbackButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
             break;
     }
