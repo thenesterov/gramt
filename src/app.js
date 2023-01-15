@@ -331,31 +331,58 @@ canvas.canvas.addEventListener("mouseup", function (ev) {
                             selectedShape.linesFrom.push(lastElemInArray);
                             if (selectedShape instanceof RectPnt &&
                                 shape instanceof RectPnt) {
-                                shape.connection_above.push(selectedShape);
                                 selectedShape.connection_below.push(shape);
+                                shape.connection_above.push(selectedShape);
+                                if (selectedShape instanceof State) {
+                                    if (shape instanceof User) {
+                                        emptyMouseUp = false;
+                                    }
+                                }
+                                else if (selectedShape instanceof User) {
+                                    if (shape instanceof Logic) {
+                                        emptyMouseUp = false;
+                                    }
+                                }
+                                else if (selectedShape instanceof Logic) {
+                                    if (shape instanceof Bot) {
+                                        emptyMouseUp = false;
+                                    }
+                                }
+                                else if (selectedShape instanceof Bot) {
+                                    if (shape instanceof Bot ||
+                                        shape instanceof Logic ||
+                                        shape instanceof State ||
+                                        shape instanceof KeyBoard) {
+                                        emptyMouseUp = false;
+                                    }
+                                }
+                                else if (selectedShape instanceof KeyBoard) {
+                                    if (!selectedShape.connection_below[0]) {
+                                        if (shape instanceof ReplyButton ||
+                                            shape instanceof CallbackButton) {
+                                            emptyMouseUp = false;
+                                        }
+                                    }
+                                    else {
+                                        if (shape instanceof ReplyButton &&
+                                            selectedShape.connection_below[0] instanceof ReplyButton) {
+                                            emptyMouseUp = false;
+                                        }
+                                        else if (shape instanceof CallbackButton &&
+                                            selectedShape.connection_below[0] instanceof
+                                                CallbackButton) {
+                                            emptyMouseUp = false;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-                    emptyMouseUp = false;
-                }
-            }
-            else if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) &&
-                (mouseOnRectPnt || mouseOnPoint) &&
-                lineIsActive) {
-                if (shape instanceof Point) {
-                    if (lastElemInArray instanceof Line) {
-                        lastElemInArray.move(null, null, ev.offsetX, ev.offsetY, shape);
-                        if (selectedShape instanceof Rect) {
-                            shape.linesTo.push(lastElemInArray);
-                            selectedShape.linesFrom.push(lastElemInArray);
-                        }
-                    }
-                    emptyMouseUp = false;
                 }
             }
         }
     });
-    if (emptyMouseUp && lineIsActive && (mouseOnRectPnt || mouseOnPoint)) {
+    if (emptyMouseUp && lineIsActive && mouseOnRectPnt) {
         allShapes.pop();
     }
     mouseIsDown = false;
