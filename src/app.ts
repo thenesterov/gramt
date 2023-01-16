@@ -76,38 +76,70 @@ class Canvas {
     return result;
   }
 
-  public getAllConnectionsAboveOfPoint(connections: Rect[]): Rect[] {
-    let allNestings: Rect[] = [];
-
-    for (let i = 0; i < connections.length; i++) {
-      let connection_i = connections[i];
-      if (connection_i instanceof RectPnt) {
-        allNestings.push(connection_i);
-      } else if (connection_i instanceof Point) {
-        allNestings.push(
-          ...this.getAllConnectionsAboveOfPoint(connection_i.connection_above)
-        );
-      }
+  public getTypeOfRectPnt(rectPnt: RectPnt) {
+    if (rectPnt instanceof State) {
+      return "State";
+    } else if (rectPnt instanceof User) {
+      return "User";
+    } else if (rectPnt instanceof Logic) {
+      return "Logic";
+    } else if (rectPnt instanceof Bot) {
+      return "Bot";
+    } else if (rectPnt instanceof KeyBoard) {
+      return "KeyBoard";
+    } else if (rectPnt instanceof ReplyButton) {
+      return "ReplyButton";
+    } else if (rectPnt instanceof CallbackButton) {
+      return "CallbackButton";
     }
-
-    return allNestings;
   }
 
-  public getAllConnectionsBelowOfPoint(connections: Rect[]): Rect[] {
-    let allNestings: Rect[] = [];
+  public genGramt(): string {
+    let gramtFile: any = new Object();
 
-    for (let i = 0; i < connections.length; i++) {
-      let connection_i = connections[i];
-      if (connection_i instanceof RectPnt) {
-        allNestings.push(connection_i);
-      } else if (connection_i instanceof Point) {
-        allNestings.push(
-          ...this.getAllConnectionsBelowOfPoint(connection_i.connection_below)
-        );
+    gramtFile.gramt = { objects: [], logics: [] };
+
+    allShapes.forEach((shape) => {
+      if (shape instanceof RectPnt) {
+        gramtFile.gramt.objects.push({
+          id: allShapes.indexOf(shape),
+          type: this.getTypeOfRectPnt(shape),
+          props: {
+            posX: shape.posX,
+            posY: shape.posY,
+            width: shape.width,
+            height: shape.height,
+            color: shape.color,
+            connectionsAbove: shape.connection_above.map((value, index) =>
+              allShapes.indexOf(value)
+            ),
+            connectionsBelow: shape.connection_below.map((value, index) =>
+              allShapes.indexOf(value)
+            ),
+            linesFrom: shape.linesFrom.map((value, index) =>
+              allShapes.indexOf(value)
+            ),
+            linesTo: shape.linesTo.map((value, index) =>
+              allShapes.indexOf(value)
+            ),
+          },
+        });
+      } else if (shape instanceof Line) {
+        gramtFile.gramt.objects.push({
+          id: allShapes.indexOf(shape),
+          type: "Line",
+          props: {
+            color: shape.color,
+            fromPosX: shape.fromPosX,
+            fromPosY: shape.fromPosY,
+            toPosX: shape.toPosX,
+            toPosY: shape.toPosY,
+          },
+        });
       }
-    }
+    });
 
-    return allNestings;
+    return JSON.stringify(gramtFile, null, 2);
   }
 
   public drawShape(shape: Shape) {
@@ -825,6 +857,10 @@ function renderCanvas() {
       canvas.drawShape(shape);
     }
   });
+
+  let gramtFileField = document.querySelector(".result") as HTMLTextAreaElement;
+
+  gramtFileField.value = canvas.genGramt();
 
   window.requestAnimationFrame(renderCanvas);
 }
