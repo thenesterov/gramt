@@ -504,6 +504,8 @@ canvas.canvas.addEventListener("mouseup", function (ev: MouseEvent) {
   let emptyMouseUp: boolean = true;
   let lastElemInArray: Shape = allShapes[allShapes.length - 1];
 
+  let currentShape: RectPnt;
+
   allShapes.forEach((shape) => {
     if (!(shape instanceof Line)) {
       if (
@@ -520,13 +522,12 @@ canvas.canvas.addEventListener("mouseup", function (ev: MouseEvent) {
               shape.linesTo.push(lastElemInArray);
               selectedShape.linesFrom.push(lastElemInArray);
 
+              currentShape = shape;
+
               if (
                 selectedShape instanceof RectPnt &&
                 shape instanceof RectPnt
               ) {
-                selectedShape.connection_below.push(shape);
-                shape.connection_above.push(selectedShape);
-
                 if (selectedShape instanceof State) {
                   if (shape instanceof User) {
                     emptyMouseUp = false;
@@ -574,7 +575,6 @@ canvas.canvas.addEventListener("mouseup", function (ev: MouseEvent) {
               }
             }
           }
-          // emptyMouseUp = false;
         }
       }
     }
@@ -582,6 +582,21 @@ canvas.canvas.addEventListener("mouseup", function (ev: MouseEvent) {
 
   if (emptyMouseUp && lineIsActive && mouseOnRectPnt) {
     allShapes.pop();
+    if (currentShape) {
+      currentShape.linesTo.pop();
+      if (selectedShape instanceof RectPnt) {
+        selectedShape.linesFrom.pop();
+      }
+    }
+
+    console.log(1);
+  } else {
+    if (currentShape) {
+      if (selectedShape instanceof RectPnt) {
+        selectedShape.connection_below.push(currentShape);
+        currentShape.connection_above.push(selectedShape);
+      }
+    }
   }
 
   mouseIsDown = false;

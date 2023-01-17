@@ -351,6 +351,7 @@ canvas.canvas.addEventListener("click", function (ev) {
 canvas.canvas.addEventListener("mouseup", function (ev) {
     let emptyMouseUp = true;
     let lastElemInArray = allShapes[allShapes.length - 1];
+    let currentShape;
     allShapes.forEach((shape) => {
         if (!(shape instanceof Line)) {
             if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY) &&
@@ -363,10 +364,9 @@ canvas.canvas.addEventListener("mouseup", function (ev) {
                         if (selectedShape instanceof Rect) {
                             shape.linesTo.push(lastElemInArray);
                             selectedShape.linesFrom.push(lastElemInArray);
+                            currentShape = shape;
                             if (selectedShape instanceof RectPnt &&
                                 shape instanceof RectPnt) {
-                                selectedShape.connection_below.push(shape);
-                                shape.connection_above.push(selectedShape);
                                 if (selectedShape instanceof State) {
                                     if (shape instanceof User) {
                                         emptyMouseUp = false;
@@ -418,6 +418,21 @@ canvas.canvas.addEventListener("mouseup", function (ev) {
     });
     if (emptyMouseUp && lineIsActive && mouseOnRectPnt) {
         allShapes.pop();
+        if (currentShape) {
+            currentShape.linesTo.pop();
+            if (selectedShape instanceof RectPnt) {
+                selectedShape.linesFrom.pop();
+            }
+        }
+        console.log(1);
+    }
+    else {
+        if (currentShape) {
+            if (selectedShape instanceof RectPnt) {
+                selectedShape.connection_below.push(currentShape);
+                currentShape.connection_above.push(selectedShape);
+            }
+        }
     }
     mouseIsDown = false;
     mouseOnRectPnt = false;
