@@ -624,6 +624,7 @@ function renderCanvas() {
     });
     let gramtFileField = document.querySelector(".result");
     gramtFileField.value = canvas.genGramt();
+    downloadGramt();
     window.requestAnimationFrame(renderCanvas);
 }
 window.requestAnimationFrame(renderCanvas);
@@ -651,4 +652,10 @@ function add(shape) {
             canvas.addShape(new CallbackButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
             break;
     }
+}
+function downloadGramt() {
+    let exportGramtButton = document.getElementById("exportGramt");
+    let textArea = document.querySelector(".result");
+    exportGramtButton.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(textArea.value));
+    exportGramtButton.setAttribute("download", "bot.gramt");
 }

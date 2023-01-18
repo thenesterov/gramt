@@ -877,6 +877,8 @@ function renderCanvas() {
 
   gramtFileField.value = canvas.genGramt();
 
+  downloadGramt();
+
   window.requestAnimationFrame(renderCanvas);
 }
 
@@ -930,4 +932,16 @@ function add(shape: string) {
       );
       break;
   }
+}
+
+function downloadGramt() {
+  let exportGramtButton = document.getElementById("exportGramt");
+  let textArea = document.querySelector(".result") as HTMLTextAreaElement;
+
+  exportGramtButton.setAttribute(
+    "href",
+    "data:text/plain;charset=utf-8," + encodeURIComponent(textArea.value)
+  );
+
+  exportGramtButton.setAttribute("download", "bot.gramt");
 }
