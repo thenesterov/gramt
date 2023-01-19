@@ -604,7 +604,17 @@ canvas.canvas.addEventListener("contextmenu", function (ev) {
         mouseYMove = ev.offsetY;
     }
 });
-canvas.canvas.addEventListener("dblclick", function (ev) { });
+canvas.canvas.addEventListener("dblclick", function (ev) {
+    allShapes.forEach((shape) => {
+        if (shape instanceof RectPnt) {
+            if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)) {
+                let modal = document.querySelector("#modal-content");
+                modal.innerHTML = `<b>x:</b> ${shape.posX} <br/><b>y</b>:${shape.posY} <br/><b>width:</b> ${shape.width} <br/><b>height:</b> ${shape.height} <br/><b>text:</b> ${shape.text}`;
+                toggleModal();
+            }
+        }
+    });
+});
 let countAllShapes = 0;
 function renderCanvas() {
     canvas.context.clearRect(clearRectX, clearRectY, canvas.canvas.width, canvas.canvas.height);
@@ -659,3 +669,15 @@ function downloadGramt() {
     exportGramtButton.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(textArea.value));
     exportGramtButton.setAttribute("download", "bot.gramt");
 }
+let modal = document.querySelector(".modal");
+let closeButton = document.querySelector(".close-button");
+function toggleModal() {
+    modal.classList.toggle("show-modal");
+}
+function windowOnClick(event) {
+    if (event.target === modal) {
+        toggleModal();
+    }
+}
+closeButton.addEventListener("click", toggleModal);
+window.addEventListener("click", windowOnClick);
