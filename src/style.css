@@ -50,7 +50,7 @@ button:hover {
 }
   
 
-span {
+.center {
     user-select: none;
     display: block;
     text-align: center;
@@ -81,11 +81,17 @@ span {
     background: #0e1621;
 }
 
-textarea {
+textarea, input {
     background-color: #17212b;
     color: #748597;
     box-sizing: border-box;
     border-radius: 3px;
+    outline: none;
+    border: none;
+}
+
+input {
+    padding: 5px;
 }
 
 .result {
@@ -118,6 +124,10 @@ textarea {
     }
 }
 
+.mt10 {
+    margin-top: 10px;
+}
+
 /* Modal Window */
 .modal {
     z-index: 2;
@@ -143,10 +153,6 @@ textarea {
     padding: 1rem 1.5rem;
     width: 24rem;
     border-radius: 0.5rem;
-}
-
-#modal-content {
-    margin-top: 40px;
 }
 
 .close-button {

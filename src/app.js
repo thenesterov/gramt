@@ -609,7 +609,18 @@ canvas.canvas.addEventListener("dblclick", function (ev) {
         if (shape instanceof RectPnt) {
             if (canvas.context.isPointInPath(shape.path2d, ev.offsetX, ev.offsetY)) {
                 let modal = document.querySelector("#modal-content");
-                modal.innerHTML = `<b>x:</b> ${shape.posX} <br/><b>y</b>:${shape.posY} <br/><b>width:</b> ${shape.width} <br/><b>height:</b> ${shape.height} <br/><b>text:</b> ${shape.text}`;
+                if (shape instanceof State) {
+                    modal.innerHTML = "";
+                    modal.innerHTML += `
+          <span>
+            Название:
+          </span>
+          <input placeholder="Название стейта" value="${shape.text}" class="title_of_state">`;
+                    modal.innerHTML +=
+                        `<button class="lbtn mt10" onclick="saveChangesState(` +
+                            allShapes.indexOf(shape) +
+                            `, 'title_of_state');">Сохранить</button>`;
+                }
                 toggleModal();
             }
         }
@@ -668,6 +679,18 @@ function downloadGramt() {
     let textArea = document.querySelector(".result");
     exportGramtButton.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(textArea.value));
     exportGramtButton.setAttribute("download", "bot.gramt");
+}
+function saveChangesState(id, class_) {
+    let text = document.getElementsByClassName(class_)[0]
+        .value;
+    allShapes.forEach((shape) => {
+        if (allShapes.indexOf(shape) == id) {
+            if (shape instanceof State) {
+                shape.text = text;
+            }
+        }
+    });
+    toggleModal();
 }
 let modal = document.querySelector(".modal");
 let closeButton = document.querySelector(".close-button");
