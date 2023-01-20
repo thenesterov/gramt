@@ -978,7 +978,7 @@ function saveChangesState(id: number, class_: string) {
   allShapes.forEach((shape) => {
     if (allShapes.indexOf(shape) == id) {
       if (shape instanceof State) {
-        shape.text = text;
+        shape.text = text.toUpperCase();
       }
     }
   });
