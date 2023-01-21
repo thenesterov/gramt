@@ -853,16 +853,59 @@ canvas.canvas.addEventListener("dblclick", function (ev: MouseEvent) {
         if (shape instanceof State) {
           modal.innerHTML = "";
 
-          modal.innerHTML += `
+          let content = "";
+
+          content += `
           <span>
             Название:
           </span>
           <input placeholder="Название стейта" value="${shape.text}" class="title_of_state">`;
 
-          modal.innerHTML +=
+          content +=
             `<button class="lbtn mt10" onclick="saveChangesState(` +
             allShapes.indexOf(shape) +
             `, 'title_of_state');">Сохранить</button>`;
+
+          modal.innerHTML = content;
+        }
+
+        if (shape instanceof User) {
+          modal.innerHTML = "";
+
+          let content = "";
+
+          if (shape.connection_above.length > 0) {
+            content += "<span>Состояния:</span><ul>";
+
+            shape.connection_above.forEach((con) => {
+              if (con instanceof State) {
+                content += `<li>${con.text}</li>`;
+              }
+            });
+
+            content += "</ul>";
+          }
+
+          content += `
+          <span>
+            Текст:
+          </span>
+          <input placeholder="Текст сообщения" value="${shape.text}" class="text_of_user_message"><br>`;
+
+          for (let i = shape.connection_below.length; i > 0; i--) {
+            let con = shape.connection_below[i - 1];
+            if (con instanceof Logic) {
+              content += `<span>Контроллер:</span> <div style="display: inline-block;">${con.text}</div>`;
+              break;
+            }
+          }
+
+          content +=
+            `<button class="lbtn mt10" onclick="saveChangesUser(` +
+            allShapes.indexOf(shape) +
+            `, 'text_of_user_message');">Сохранить</button>`;
+
+          modal.innerHTML = content;
         }
 
         toggleModal();
@@ -918,7 +961,7 @@ function add(shape: string) {
       break;
     case "user":
       canvas.addShape(
-        new User(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100)
+        new User(100 - generalDiffMouseX, 100 - generalDiffMouseY, 300, 300)
       );
       break;
     case "logic":
@@ -979,6 +1022,21 @@ function saveChangesState(id: number, class_: string) {
     if (allShapes.indexOf(shape) == id) {
       if (shape instanceof State) {
         shape.text = text.toUpperCase();
+      }
+    }
+  });
+
+  toggleModal();
+}
+
+function saveChangesUser(id: number, class_: string) {
+  let text = (<HTMLInputElement>document.getElementsByClassName(class_)[0])
+    .value;
+
+  allShapes.forEach((shape) => {
+    if (allShapes.indexOf(shape) == id) {
+      if (shape instanceof User) {
+        shape.text = text;
       }
     }
   });
