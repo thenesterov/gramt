@@ -328,6 +328,13 @@ class RectPnt extends Rect {
   public setText(text: string[]) {
     this.text = text.join("");
 
+    if (
+      canvas.context.measureText(this.text).width > this.width &&
+      canvas.context.measureText(this.text).width < 300
+    ) {
+      this.width = canvas.context.measureText(this.text).width + 35;
+    }
+
     let diffHeight: number = text.length * 17 + 20;
 
     this.height = diffHeight;
@@ -337,6 +344,7 @@ class RectPnt extends Rect {
     this.path2d.rect(this.posX, this.posY, this.width, diffHeight);
 
     this.point.posY = this.posY + diffHeight;
+    this.point.posX = this.posX + this.width / 2 - this.point.width;
 
     this.point.path2d = new Path2D();
     this.point.path2d.rect(
@@ -1012,27 +1020,27 @@ function add(shape: string) {
   switch (shape) {
     case "state":
       canvas.addShape(
-        new State(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100)
+        new State(100 - generalDiffMouseX, 100 - generalDiffMouseY, 150, 100)
       );
       break;
     case "user":
       canvas.addShape(
-        new User(100 - generalDiffMouseX, 100 - generalDiffMouseY, 300, 300)
+        new User(100 - generalDiffMouseX, 100 - generalDiffMouseY, 150, 100)
       );
       break;
     case "logic":
       canvas.addShape(
-        new Logic(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100)
+        new Logic(100 - generalDiffMouseX, 100 - generalDiffMouseY, 150, 100)
       );
       break;
     case "bot":
       canvas.addShape(
-        new Bot(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100)
+        new Bot(100 - generalDiffMouseX, 100 - generalDiffMouseY, 150, 150)
       );
       break;
     case "kb":
       canvas.addShape(
-        new KeyBoard(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100)
+        new KeyBoard(100 - generalDiffMouseX, 100 - generalDiffMouseY, 150, 100)
       );
       break;
     case "rb":
@@ -1040,7 +1048,7 @@ function add(shape: string) {
         new ReplyButton(
           100 - generalDiffMouseX,
           100 - generalDiffMouseY,
-          100,
+          150,
           100
         )
       );
@@ -1050,7 +1058,7 @@ function add(shape: string) {
         new CallbackButton(
           100 - generalDiffMouseX,
           100 - generalDiffMouseY,
-          100,
+          150,
           100
         )
       );

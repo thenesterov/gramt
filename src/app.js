@@ -220,12 +220,17 @@ class RectPnt extends Rect {
     }
     setText(text) {
         this.text = text.join("");
+        if (canvas.context.measureText(this.text).width > this.width &&
+            canvas.context.measureText(this.text).width < 300) {
+            this.width = canvas.context.measureText(this.text).width + 35;
+        }
         let diffHeight = text.length * 17 + 20;
         this.height = diffHeight;
         this.point.posY = this.point.posY + diffHeight - this.height;
         this.path2d = new Path2D();
         this.path2d.rect(this.posX, this.posY, this.width, diffHeight);
         this.point.posY = this.posY + diffHeight;
+        this.point.posX = this.posX + this.width / 2 - this.point.width;
         this.point.path2d = new Path2D();
         this.point.path2d.rect(this.posX + this.width / 2 - this.point.width / 2, this.posY + diffHeight, this.point.width, this.point.height);
     }
@@ -724,25 +729,25 @@ window.requestAnimationFrame(renderCanvas);
 function add(shape) {
     switch (shape) {
         case "state":
-            canvas.addShape(new State(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+            canvas.addShape(new State(100 - generalDiffMouseX, 100 - generalDiffMouseY, 150, 100));
             break;
         case "user":
-            canvas.addShape(new User(100 - generalDiffMouseX, 100 - generalDiffMouseY, 300, 300));
+            canvas.addShape(new User(100 - generalDiffMouseX, 100 - generalDiffMouseY, 150, 100));
             break;
         case "logic":
-            canvas.addShape(new Logic(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+            canvas.addShape(new Logic(100 - generalDiffMouseX, 100 - generalDiffMouseY, 150, 100));
             break;
         case "bot":
-            canvas.addShape(new Bot(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+            canvas.addShape(new Bot(100 - generalDiffMouseX, 100 - generalDiffMouseY, 150, 150));
             break;
         case "kb":
-            canvas.addShape(new KeyBoard(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+            canvas.addShape(new KeyBoard(100 - generalDiffMouseX, 100 - generalDiffMouseY, 150, 100));
             break;
         case "rb":
-            canvas.addShape(new ReplyButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+            canvas.addShape(new ReplyButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 150, 100));
             break;
         case "cb":
-            canvas.addShape(new CallbackButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 100, 100));
+            canvas.addShape(new CallbackButton(100 - generalDiffMouseX, 100 - generalDiffMouseY, 150, 100));
             break;
     }
 }
