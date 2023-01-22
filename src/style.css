@@ -106,6 +106,12 @@ input {
     outline: none;
 }
 
+.code_logic {
+    width: 100%;
+    resize: none;
+    height: 10rem;
+}
+
 @media (max-width: 350px) {
     .result {
         height: 30%;

@@ -908,6 +908,62 @@ canvas.canvas.addEventListener("dblclick", function (ev: MouseEvent) {
           modal.innerHTML = content;
         }
 
+        if (shape instanceof Logic) {
+          modal.innerHTML = "";
+
+          let content = "";
+
+          content += `
+          <span>
+            Название:
+          </span>
+          <input placeholder="Название контроллера" value="${shape.text}" class="title_of_logic">`;
+
+          content += `Доступные данные о сообщении:
+          <ul>
+            <li><b>Дата сообщения: </b>msg.date</li>
+            <li><b>Айди пользователя: </b>msg.from_user.id</li>
+            <li><b>Имя: </b>msg.from_user.first_name</li>
+            <li><b>Фамилия: </b>msg.from_user.last_name</li>
+            <li><b>Юзернейм: </b>msg.from_user.username</li>
+          </ul>
+          `;
+
+          content += `<span>Код:</span><br><textarea class="code_logic"></textarea>`;
+
+          content += `<span>Доступные сообщения: </span><select id="select_botmsg_id" onchange="changeBotmsg('select_botmsg_id');">`;
+
+          for (let i = 0; i < shape.connection_below.length; i++) {
+            let con = shape.connection_below[i];
+
+            if (con instanceof Bot) {
+              content += `<option value=${allShapes.indexOf(
+                con
+              )}>${allShapes.indexOf(con)}</option>`;
+            }
+          }
+
+          content += `</select><div id="bot_msg">`;
+
+          for (let i = 0; i < shape.connection_below.length; i++) {
+            let con = shape.connection_below[i];
+
+            if (con instanceof Bot) {
+              content += `${con.text}`;
+              break;
+            }
+          }
+
+          content += `</div>`;
+
+          content +=
+            `<button class="lbtn mt10" onclick="saveChangesLogic(` +
+            allShapes.indexOf(shape) +
+            `, 'title_of_logic');">Сохранить</button>`;
+
+          modal.innerHTML = content;
+        }
+
         toggleModal();
       }
     }
@@ -1014,6 +1070,14 @@ function downloadGramt() {
   exportGramtButton.setAttribute("download", "bot.gramt");
 }
 
+function changeBotmsg(id) {
+  let select = (<HTMLSelectElement>document.getElementById(id)).value;
+
+  let div = document.getElementById("bot_msg");
+
+  div.innerHTML = allShapes[select].text;
+}
+
 function saveChangesState(id: number, class_: string) {
   let text = (<HTMLInputElement>document.getElementsByClassName(class_)[0])
     .value;
@@ -1037,6 +1101,21 @@ function saveChangesUser(id: number, class_: string) {
     if (allShapes.indexOf(shape) == id) {
       if (shape instanceof User) {
         shape.text = text;
+      }
+    }
+  });
+
+  toggleModal();
+}
+
+function saveChangesLogic(id: number, class_: string) {
+  let text = (<HTMLInputElement>document.getElementsByClassName(class_)[0])
+    .value;
+
+  allShapes.forEach((shape) => {
+    if (allShapes.indexOf(shape) == id) {
+      if (shape instanceof Logic) {
+        shape.text = text.toUpperCase();
       }
     }
   });
