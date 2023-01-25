@@ -698,6 +698,34 @@ canvas.canvas.addEventListener("dblclick", function (ev) {
                             `, 'title_of_logic');">Сохранить</button>`;
                     modal.innerHTML = content;
                 }
+                if (shape instanceof Bot) {
+                    modal.innerHTML = "";
+                    let content = "";
+                    content += `
+          <span>
+            Текст:
+          </span>
+          <input placeholder="Текст сообщения" value="${shape.text}" class="text_of_botmsg"><br>`;
+                    for (let i = shape.connection_below.length; i > 0; i--) {
+                        let con = shape.connection_below[i - 1];
+                        if (con instanceof State) {
+                            content += `<span>Перейти в состояние:</span> <div style="display: inline-block;">${con.text}</div><br>`;
+                            break;
+                        }
+                    }
+                    for (let i = shape.connection_below.length; i > 0; i--) {
+                        let con = shape.connection_below[i - 1];
+                        if (con instanceof KeyBoard) {
+                            content += `<span>Клавиатура:</span> <div style="display: inline-block;">${con.text}</div>`;
+                            break;
+                        }
+                    }
+                    content +=
+                        `<button class="lbtn mt10" onclick="saveChangesBot(` +
+                            allShapes.indexOf(shape) +
+                            `, 'text_of_botmsg');">Сохранить</button>`;
+                    modal.innerHTML = content;
+                }
                 toggleModal();
             }
         }
@@ -793,6 +821,18 @@ function saveChangesLogic(id, class_) {
         if (allShapes.indexOf(shape) == id) {
             if (shape instanceof Logic) {
                 shape.text = text.toUpperCase();
+            }
+        }
+    });
+    toggleModal();
+}
+function saveChangesBot(id, class_) {
+    let text = document.getElementsByClassName(class_)[0]
+        .value;
+    allShapes.forEach((shape) => {
+        if (allShapes.indexOf(shape) == id) {
+            if (shape instanceof Bot) {
+                shape.text = text;
             }
         }
     });
