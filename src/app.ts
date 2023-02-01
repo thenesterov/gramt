@@ -542,7 +542,9 @@ canvas.canvas.addEventListener("mouseup", function (ev: MouseEvent) {
                   }
                 } else if (selectedShape instanceof User) {
                   if (shape instanceof Logic) {
-                    emptyMouseUp = false;
+                    if (selectedShape.connection_below.length == 0) {
+                      emptyMouseUp = false;
+                    }
                   }
                 } else if (selectedShape instanceof Logic) {
                   if (shape instanceof Bot) {
@@ -556,6 +558,11 @@ canvas.canvas.addEventListener("mouseup", function (ev: MouseEvent) {
                     shape instanceof KeyBoard
                   ) {
                     emptyMouseUp = false;
+                    if (shape instanceof KeyBoard) {
+                      if (selectedShape.connection_below.length > 0) {
+                        emptyMouseUp = true;
+                      }
+                    }
                   }
                 } else if (selectedShape instanceof KeyBoard) {
                   if (!selectedShape.connection_below[0]) {
