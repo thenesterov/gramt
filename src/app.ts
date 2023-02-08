@@ -1014,6 +1014,25 @@ canvas.canvas.addEventListener("dblclick", function (ev: MouseEvent) {
           modal.innerHTML = content;
         }
 
+        if (shape instanceof KeyBoard) {
+          modal.innerHTML = "";
+
+          let content = "";
+
+          content += `
+          <span>
+            Название:
+          </span>
+          <input placeholder="Название кнопки" value="${shape.text}" class="text_of_kb"><br>`;
+
+          content +=
+            `<button class="lbtn mt10" onclick="saveChangesKB(` +
+            allShapes.indexOf(shape) +
+            `, 'text_of_kb');">Сохранить</button>`;
+
+          modal.innerHTML = content;
+        }
+
         toggleModal();
       }
     }
@@ -1180,6 +1199,21 @@ function saveChangesBot(id: number, class_: string) {
   allShapes.forEach((shape) => {
     if (allShapes.indexOf(shape) == id) {
       if (shape instanceof Bot) {
+        shape.text = text;
+      }
+    }
+  });
+
+  toggleModal();
+}
+
+function saveChangesKB(id: number, class_: string) {
+  let text = (<HTMLInputElement>document.getElementsByClassName(class_)[0])
+    .value;
+
+  allShapes.forEach((shape) => {
+    if (allShapes.indexOf(shape) == id) {
+      if (shape instanceof KeyBoard) {
         shape.text = text;
       }
     }
