@@ -421,6 +421,11 @@ canvas.canvas.addEventListener("mouseup", function (ev) {
                                         }
                                     }
                                 }
+                                else if (selectedShape instanceof ReplyButton) {
+                                    if (shape instanceof Logic) {
+                                        emptyMouseUp = false;
+                                    }
+                                }
                             }
                         }
                     }
@@ -747,6 +752,27 @@ canvas.canvas.addEventListener("dblclick", function (ev) {
                             `, 'text_of_kb');">Сохранить</button>`;
                     modal.innerHTML = content;
                 }
+                if (shape instanceof ReplyButton) {
+                    modal.innerHTML = "";
+                    let content = "";
+                    content += `
+          <span>
+            Текст:
+          </span>
+          <input placeholder="Текст кнопки" value="${shape.text}" class="text_of_reply_button"><br>`;
+                    for (let i = shape.connection_below.length; i > 0; i--) {
+                        let con = shape.connection_below[i - 1];
+                        if (con instanceof Logic) {
+                            content += `<span>Контроллер:</span> <div style="display: inline-block;">${con.text}</div>`;
+                            break;
+                        }
+                    }
+                    content +=
+                        `<button class="lbtn mt10" onclick="saveChangesRB(` +
+                            allShapes.indexOf(shape) +
+                            `, 'text_of_reply_button');">Сохранить</button>`;
+                    modal.innerHTML = content;
+                }
                 toggleModal();
             }
         }
@@ -865,6 +891,18 @@ function saveChangesKB(id, class_) {
     allShapes.forEach((shape) => {
         if (allShapes.indexOf(shape) == id) {
             if (shape instanceof KeyBoard) {
+                shape.text = text;
+            }
+        }
+    });
+    toggleModal();
+}
+function saveChangesRB(id, class_) {
+    let text = document.getElementsByClassName(class_)[0]
+        .value;
+    allShapes.forEach((shape) => {
+        if (allShapes.indexOf(shape) == id) {
+            if (shape instanceof ReplyButton) {
                 shape.text = text;
             }
         }
