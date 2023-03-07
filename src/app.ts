@@ -590,6 +590,10 @@ canvas.canvas.addEventListener("mouseup", function (ev: MouseEvent) {
                   if(shape instanceof Logic) {
                     emptyMouseUp = false;
                   }
+                } else if (selectedShape instanceof CallbackButton) {
+                  if(shape instanceof Logic) {
+                    emptyMouseUp = false;
+                  }
                 }
               }
             }
@@ -1064,6 +1068,33 @@ canvas.canvas.addEventListener("dblclick", function (ev: MouseEvent) {
           modal.innerHTML = content;
         }
 
+        if(shape instanceof CallbackButton) {
+          modal.innerHTML = "";
+
+          let content = "";
+
+          content += `
+          <span>
+            Текст:
+          </span>
+          <input placeholder="Текст кнопки" value="${shape.text}" class="text_of_callback_button"><br>`;
+
+          for (let i = shape.connection_below.length; i > 0; i--) {
+            let con = shape.connection_below[i - 1];
+            if (con instanceof Logic) {
+              content += `<span>Контроллер:</span> <div style="display: inline-block;">${con.text}</div>`;
+              break;
+            }
+          }
+
+          content +=
+            `<button class="lbtn mt10" onclick="saveChangesCB(` +
+            allShapes.indexOf(shape) +
+            `, 'text_of_callback_button');">Сохранить</button>`;
+
+          modal.innerHTML = content;
+        }
+
         toggleModal();
       }
     }
@@ -1265,7 +1296,22 @@ function saveChangesRB(id: number, class_: string) {
     }
 });
 
-toggleModal();
+  toggleModal();
+}
+
+function saveChangesCB(id: number, class_: string) {
+  let text = (<HTMLInputElement>document.getElementsByClassName(class_)[0])
+  .value;
+
+  allShapes.forEach((shape) => {
+    if (allShapes.indexOf(shape) == id) {
+      if (shape instanceof CallbackButton) {
+        shape.text = text;
+      }
+    }
+  });
+
+    toggleModal();
 }
 
 // Modal window
